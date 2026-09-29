@@ -216,3 +216,26 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+
+
+
+
+
+
+
+
+
+
+
+# --- project-specific ---
+# figures & analysis outputs (if any live inside the repo)
+analysis/plots/
+*.pdf
+# data — must never reach GitHub (patient EEG)
+*.bdf
+*.fif
+*.pkl
+*.set
+# Windows/OneDrive artifacts
+*Zone.Identifier
