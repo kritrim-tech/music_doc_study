@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 
 import numpy as np
 from pathlib import Path
@@ -313,7 +314,7 @@ def plot_band_power_comparisons(
     FS_YLAB = 20, 
     FS_YTICK = 20, 
     FS_LEG = 20, 
-    FS_TITLE = 26
+    FS_TITLE = 26,     show_ylabel=True,   # False -> omit the y-axis label text (state the unit in the caption)
 ):
     import os
     import matplotlib
@@ -496,7 +497,8 @@ def plot_band_power_comparisons(
 
                 show_y = (network == first_net) if vertical else is_first
                 if show_y:
-                    ax.set_ylabel(power_unit, fontsize=FS_YLAB)
+                    if show_ylabel:
+                        ax.set_ylabel(power_unit, fontsize=FS_YLAB)
                     ax.tick_params(axis="y", labelsize=FS_YTICK)
                     ax.yaxis.set_major_locator(MaxNLocator(integer=True, nbins=5))
                 else:
@@ -666,8 +668,19 @@ def build_cluster_summary(fdr_corrected_p_vals, power_dict, condition1, conditio
     v1 = np.asarray(power_dict[sub_id][condition1][band])
     v2 = np.asarray(power_dict[sub_id][condition2][band])
 
+    # collapse epochs FIRST (ratio of means), matching the region-level map
+    # panels; per-epoch ratios explode when single epochs pass near zero
+    if v1.ndim == 2:
+        v1 = np.nanmean(v1, axis=1)
+    if v2.ndim == 2:
+        v2 = np.nanmean(v2, axis=1)
+    v1 = v1.ravel()
+    v2 = v2.ravel()
+
     with np.errstate(divide='ignore', invalid='ignore'):
         frac_diff = np.where(v1 != 0, (v2 - v1) / v1, np.nan)
+
+
 
     sig_mask = pvals < alpha
 
@@ -711,18 +724,42 @@ def plot_cluster_bubble_heatmap(cluster_summary, bands, cluster_order=None,
                                  pat_state=None, sub_labels=None,
                                  condition1_label="Condition 1", condition2_label="Condition 2",
                                  cmap=soft_div, max_bubble_size=600,
-                                 figsize_per_panel=(4, 4.5), save_path=None,
-                                 row_spacing=1.6):
+                                 figsize_per_panel=(4, 6), save_path=None,
+                                 row_spacing=1.6,
+                                 vertical=False,          # True -> one panel per subject, stacked as ROWS
+                                 show_sub_labels=True,
+                                 abbrev_clusters=False,   # True -> first letter only (expand in caption)
+                                 cbar_location="right",   # "right" | "bottom"
+                                 cbar_label=r"Mean $\Delta P$, significant regions",
+                                 per_band_cnorm=False):   # True -> own colour scale + colorbar per band/component
     """
-    One small-multiple panel per subject: cluster (y-axis) x band (x-axis),
+    Small-multiple bubble heatmap: cluster (y-axis) x band (x-axis) per panel,
     bubble size = proportion of significant regions, colour = mean fractional
     difference across significant regions (diverging, centred at 0).
+
+    vertical=False (default): one panel per subject, side by side (original).
+    vertical=True: one panel per subject, stacked vertically.
+    abbrev_clusters=True: y-tick labels are the first letter of each cluster
+    name only (F, P, T, O, I, C, L, S) -- define them in the figure caption.
+    cbar_location="bottom": horizontal colorbar centred below the panels
+    (frees the right margin so panels can be wider).
+    per_band_cnorm=True: each band/component gets its own symmetric colour
+    scale and its own colorbar (labelled with its symbol) -- use when value
+    ranges differ wildly between columns (e.g. aperiodic offset vs exponent),
+    where a shared scale washes out the smaller-ranged component.
     """
+    FS_SUBTITLE = 22
+    FS_CBAR_LABEL = 20
+    FS_CBAR_TICK = 18
+    FS_ROW = 20
+
     greek_symbols = {
         'delta': r'$\mathbf{\delta}$', 'theta': r'$\mathbf{\theta}$',
         'alpha': r'$\mathbf{\alpha}$', 'beta': r'$\mathbf{\beta}$',
         'gamma': r'$\mathbf{\gamma}$', 'gamma low': r'$\mathbf{\gamma}$',
+        'Offset': r'$\mathbf{b}$', 'Exponent': r'$\boldsymbol{\chi}$',
     }
+
     band_labels = [greek_symbols.get(b, b.capitalize()) for b in bands]
 
     subjects = list(cluster_summary.keys())
@@ -730,21 +767,46 @@ def plot_cluster_bubble_heatmap(cluster_summary, bands, cluster_order=None,
         cluster_order = sorted({c for sub in cluster_summary.values()
                                    for band_d in sub.values() for c in band_d.keys()})
 
-    n_subs = len(subjects)
-    fig, axes = plt.subplots(1, n_subs, figsize=(figsize_per_panel[0]*n_subs, figsize_per_panel[1]),
-                              squeeze=False)
-    axes = axes[0]
+    cluster_tick_labels = [c[0].upper() for c in cluster_order] if abbrev_clusters else cluster_order
+    if abbrev_clusters and len(set(cluster_tick_labels)) < len(cluster_tick_labels):
+        print("WARNING: first-letter cluster abbreviations are not unique:",
+              cluster_tick_labels)
 
-    all_diffs = [d['avg_diff'] for sub in cluster_summary.values()
-                 for band_d in sub.values() for d in band_d.values()
-                 if not np.isnan(d['avg_diff'])]
-    max_abs = np.nanmax(np.abs(all_diffs)) if all_diffs else 1.0
-    vmin, vmax = -max_abs, max_abs
+    n_subs = len(subjects)
+    if vertical:
+        fig, axes = plt.subplots(n_subs, 1,
+                                 figsize=(figsize_per_panel[0], figsize_per_panel[1]*n_subs),
+                                 squeeze=False)
+        axes = axes[:, 0]
+    else:
+        fig, axes = plt.subplots(1, n_subs,
+                                 figsize=(figsize_per_panel[0]*n_subs, figsize_per_panel[1]),
+                                 squeeze=False)
+        axes = axes[0]
+
+    def _sym_range(diffs):
+        m = np.nanmax(np.abs(diffs)) if len(diffs) else 1.0
+        return (-m, m) if m > 0 else (-1.0, 1.0)
+
+    if per_band_cnorm:
+        band_range = {}
+        for band in bands:
+            diffs = [d['avg_diff'] for sub in cluster_summary.values()
+                     for d in sub.get(band, {}).values()
+                     if not np.isnan(d['avg_diff'])]
+            band_range[band] = _sym_range(diffs)
+    else:
+        all_diffs = [d['avg_diff'] for sub in cluster_summary.values()
+                     for band_d in sub.values() for d in band_d.values()
+                     if not np.isnan(d['avg_diff'])]
+        vmin, vmax = _sym_range(all_diffs)
 
     row_positions = [i * row_spacing for i in range(len(cluster_order))]
 
     for ax_idx, sub_id in enumerate(subjects):
         ax = axes[ax_idx]
+        is_last = ax_idx == n_subs - 1
+
         for row_idx, cluster in enumerate(cluster_order):
             row = row_positions[row_idx]
             for col, band in enumerate(bands):
@@ -753,57 +815,653 @@ def plot_cluster_bubble_heatmap(cluster_summary, bands, cluster_order=None,
                     continue
                 size = d['prop_sig'] * max_bubble_size
                 color_val = d['avg_diff'] if not np.isnan(d['avg_diff']) else 0
+                b_vmin, b_vmax = band_range[band] if per_band_cnorm else (vmin, vmax)
                 ax.scatter(col, row, s=max(size, 8), c=[color_val], cmap=cmap,
-                           vmin=vmin, vmax=vmax, zorder=3)
+                           vmin=b_vmin, vmax=b_vmax, zorder=3)
 
         ax.set_xlim(-0.5, len(bands) - 0.5)
         ax.set_ylim(-row_spacing*0.5, row_positions[-1] + row_spacing*0.5)
         ax.set_xticks(range(len(bands)))
-        ax.set_xticklabels(band_labels, fontsize=18, fontweight='bold')
         ax.invert_yaxis()
 
-        if ax_idx == 0:
+        # band labels: every panel when horizontal; bottom panel only when vertical
+        if (not vertical) or is_last:
+            ax.set_xticklabels(band_labels, fontsize=18, fontweight='bold')
+        else:
+            ax.set_xticklabels([])
+            ax.tick_params(bottom=False)
+
+        # cluster labels: first panel only when horizontal; every panel when vertical
+        if vertical or ax_idx == 0:
             ax.set_yticks(row_positions)
-            ax.set_yticklabels(cluster_order, fontsize=16, fontweight='bold')
+            ax.set_yticklabels(cluster_tick_labels, fontsize=FS_ROW, fontweight='bold')
+        
         else:
             ax.set_yticks([])
 
-        label = sub_labels.get(sub_id, sub_id) if sub_labels else sub_id
-        state = f" ({pat_state[sub_id]})" if pat_state and sub_id in pat_state else ""
-        ax.set_title(f"{label}{state}", fontsize=13, fontweight='bold')
+        if show_sub_labels:
+            # same precedence as the grid builders: explicit sub_labels dict wins,
+            # else number by the subject's own position in pat_state (robust to
+            # missing/non-contiguous subjects), else the raw id
+            if sub_labels and sub_id in sub_labels:
+                label = sub_labels[sub_id]
+            elif pat_state and sub_id in pat_state:
+                label = f"SUB{list(pat_state.keys()).index(sub_id) + 1}"
+            else:
+                label = sub_id
+            state = f" ({pat_state[sub_id]})" if pat_state and sub_id in pat_state else ""
+            loc = 'right' if vertical else 'center'
+            ax.set_title(f"{label}{state}", fontsize=FS_SUBTITLE, fontweight='bold', loc=loc)
 
         for row in row_positions:
             ax.axhline(row, color='#eeeeee', lw=0.5, zorder=0)
 
         for spine in ax.spines.values():
             spine.set_visible(False)
+        # divider between panels: right edge when horizontal, bottom edge when vertical
         if ax_idx < n_subs - 1:
-            ax.spines['right'].set_visible(True)
-            ax.spines['right'].set_color('#bbbbbb')
-            ax.spines['right'].set_linewidth(0.8)
+            side = 'bottom' if vertical else 'right'
+            ax.spines[side].set_visible(True)
+            ax.spines[side].set_color('#bbbbbb')
+            ax.spines[side].set_linewidth(0.8)
 
-    plt.tight_layout(rect=[0, 0, 0.92, 1])
+    # layout + colorbar(s)
+    def _style_cbar(cbar, lo, hi, label, n_ticks=5):
+        ticks = np.linspace(lo, hi, n_ticks)
+        cbar.set_ticks(ticks)
+        cbar.set_ticklabels([f"{t:.2f}" for t in ticks])
+        cbar.set_label(label, fontsize=FS_CBAR_LABEL, labelpad=10)
+        cbar.ax.tick_params(labelsize=FS_CBAR_TICK, length=4, width=1)
+        cbar.outline.set_visible(False)
 
-    cbar_ax = fig.add_axes([0.94, 0.35, 0.008, 0.3])
-    sm = plt.cm.ScalarMappable(cmap=cmap, norm=plt.Normalize(vmin=vmin, vmax=vmax))
-    sm.set_array([])
-    cbar_label = r"Mean $\Delta P$, significant regions"
-    cbar = fig.colorbar(sm, cax=cbar_ax)
-    cbar.set_label(cbar_label, fontsize=16, labelpad=10)
-    cbar.ax.tick_params(labelsize=14, length=4, width=1)
-    cbar.outline.set_visible(False)
+    if per_band_cnorm:
+        # one bar per band/component: side by side (bottom) or stacked (right)
+        n_bars = len(bands)
+        if cbar_location == "bottom":
+            plt.tight_layout(rect=[0, 0.14, 1, 1])
+            bar_w, gap = 0.18, 0.06
+            total = n_bars * bar_w + (n_bars - 1) * gap
+            x0 = (1 - total) / 2
+            for i, band in enumerate(bands):
+                lo, hi = band_range[band]
+                sm = plt.cm.ScalarMappable(cmap=cmap, norm=plt.Normalize(lo, hi))
+                sm.set_array([])
+                cax = fig.add_axes([x0 + i * (bar_w + gap), 0.05, bar_w, 0.03])
+                cbar = fig.colorbar(sm, cax=cax, orientation="horizontal")
+                _style_cbar(cbar, lo, hi, band_labels[i], n_ticks=3)
+        else:
+            plt.tight_layout(rect=[0, 0, 0.90, 1])
+            bar_h, gap = 0.18, 0.06
+            total = n_bars * bar_h + (n_bars - 1) * gap
+            y0 = (1 - total) / 2
+            for i, band in enumerate(bands):
+                lo, hi = band_range[band]
+                sm = plt.cm.ScalarMappable(cmap=cmap, norm=plt.Normalize(lo, hi))
+                sm.set_array([])
+                cax = fig.add_axes([0.93, y0 + i * (bar_h + gap), 0.012, bar_h])
+                cbar = fig.colorbar(sm, cax=cax)
+                _style_cbar(cbar, lo, hi, band_labels[i], n_ticks=3)
+    else:
+        sm = plt.cm.ScalarMappable(cmap=cmap, norm=plt.Normalize(vmin=vmin, vmax=vmax))
+        sm.set_array([])
+
+        if cbar_location == "bottom":
+            # reserve a band at the bottom instead of the right margin
+            plt.tight_layout(rect=[0, 0.12, 1, 1])
+            cbar_ax = fig.add_axes([0.35, 0.05, 0.30, 0.03])
+            cbar = fig.colorbar(sm, cax=cbar_ax, orientation="horizontal")
+        else:
+            plt.tight_layout(rect=[0, 0, 0.92, 1])
+            if vertical:
+                cbar_ax = fig.add_axes([0.94, 0.42, 0.015, 0.16])
+            else:
+                cbar_ax = fig.add_axes([0.94, 0.35, 0.008, 0.3])
+            cbar = fig.colorbar(sm, cax=cbar_ax)
+
+        _style_cbar(cbar, vmin, vmax, cbar_label, n_ticks=5)
 
     if save_path:
-        # print(os.path.dirname(save_path))
         os.makedirs(os.path.dirname(save_path), exist_ok=True)
         plt.savefig(save_path, dpi=300, bbox_inches='tight')
     plt.show()
+    plt.close(fig)
 
 
 
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+def build_vector_grid_pdf_dual_folder(
+    image_dir_a: str,
+    image_dir_b: str,
+    bands: list = None,
+    pat_state: list = None,
+    save_dir: str = None,
+    sub_labels: dict = None,
+    cell_width_in: float = 4.0,
+    cell_height_in: float = 1.8,
+    row_label_width_in: float = 0.7,   # transpose + labels: use ~1.6 for "SUB1 (UWS)"
+    col_label_height_in: float = 0.5,
+    col_label_fontsize: int = 18,
+    gap_x_in: float = 0.05,
+    gap_y_in: float = 0.06,          # gap BETWEEN blocks (bands, or subjects if transposed)
+    within_gap_y_in: float = 0.01,   # gap between the two stacked panels of the SAME pair
+    row_label_fontsize: int = 24,
+    row_label_vshift_in: float = 0.08,
+    out_filename: str = "all_subs_all_bands_dual.pdf",
+    divider_color: tuple = (0.5, 0.5, 0.5),  # medium-dark gray, RGB 0-1
+    divider_width: float = 0.75,
+    transpose: bool = False,        # True → subjects as rows, bands as columns
+    show_sub_labels: bool = True,   # False → omit subject labels entirely
+    show_band_labels: bool = True,  # False → omit band/component labels entirely
+    raster_dpi: float = 200,        # rasterize panels at this DPI; None → full vector embed
+):
+    """
+    Like build_vector_grid_pdf, but pulls one panel per (sub, band) from EACH
+    of two folders and stacks them vertically (folder_a on top, folder_b
+    directly below) inside every cell block.
+
+    Default layout: bands as block-rows (Greek row labels centered across the
+    stacked pair), subjects as columns. With transpose=True: subjects as
+    block-rows (labels optional via show_sub_labels), bands as columns with
+    Greek headers; each block-row is one subject, and divider lines separate
+    subjects instead of bands. The a-over-b stacking within each block is the
+    same in both orientations.
+
+    Filenames in both folders are matched generically as:
+        {sub}_<anything>_{band}.pdf
+
+    By default (raster_dpi=200) each panel is rasterized to an image at that
+    DPI and placed in its cell, while the grid labels remain real vector
+    text; this keeps the merged file small and fast to render. Set
+    raster_dpi=None for the old fully-vector embed of every panel.
+    """
+    import re
+    import os
+    from pathlib import Path
+    import matplotlib
+    import fitz  # PyMuPDF
+
+    def _vcenter_rect(width_pt, height_pt, y0, text, fontsize, fontfile, fontname):
+        tmp_doc = fitz.open()
+        tmp_page = tmp_doc.new_page(width=width_pt, height=height_pt)
+        rc = tmp_page.insert_textbox(
+            fitz.Rect(0, 0, width_pt, height_pt),
+            text, fontsize=fontsize, fontfile=fontfile, fontname=fontname,
+            align=fitz.TEXT_ALIGN_CENTER,
+        )
+        tmp_doc.close()
+        shift = max(rc, 0) / 2
+        return fitz.Rect(0, y0 + shift, width_pt, y0 + height_pt + shift)
+
+    def _build_file_index(folder):
+        pattern = re.compile(r"^(?P<sub>[^_]+)_.*_(?P<band>[^_]+)\.pdf$")
+        idx = {}
+        for fpath in sorted(Path(folder).glob("*.pdf")):
+            m = pattern.match(fpath.name)
+            if m is None:
+                continue
+            idx.setdefault(m.group("band"), {})[m.group("sub")] = fpath
+        return idx
+
+    PT = 72
+
+    greek_symbols = {
+        'delta': '\u03b4', 'theta': '\u03b8', 'alpha': '\u03b1',
+        'beta': '\u03b2', 'gamma': '\u03b3', 'gamma low': '\u03b3',
+        'Offset': 'b', 'Exponent': '\u03c7',
+    }
+
+    file_index_a = _build_file_index(image_dir_a)
+    file_index_b = _build_file_index(image_dir_b)
+
+    if not file_index_a and not file_index_b:
+        print(f"No matching files found in {image_dir_a} or {image_dir_b}")
+        return
+
+    all_bands_found = set(file_index_a.keys()) | set(file_index_b.keys())
+    detected_bands = [b for b in bands if b in all_bands_found] if bands else sorted(all_bands_found)
+
+    all_subs = sorted(
+        {s for d in file_index_a.values() for s in d.keys()} |
+        {s for d in file_index_b.values() for s in d.keys()}
+    )
+
+    # ── label text helpers ────────────────────────────────────────────────
+    # ── label text helpers ────────────────────────────────────────────────
+    def _band_text(band):
+        return greek_symbols.get(band, band.upper())
+
+    def _sub_text(sub):
+        # explicit sub_labels wins; else number by the subject's own position
+        # in pat_state (robust to missing/non-contiguous subjects); else positional
+        if sub_labels and sub in sub_labels:
+            sub_label = sub_labels[sub]
+        elif pat_state and sub in pat_state:
+            sub_label = f"SUB{list(pat_state.keys()).index(sub) + 1}"
+        else:
+            sub_label = f"SUB{all_subs.index(sub) + 1}"
+        state = f" ({pat_state[sub]})" if pat_state and sub in pat_state else ""
+        return f"{sub_label}{state}"
+
+    # ── orientation mapping ───────────────────────────────────────────────
+    if transpose:
+        row_items, col_items = all_subs, detected_bands     # subs=rows, bands=cols
+        row_text, col_text = _sub_text, _band_text
+        show_row_labels = show_sub_labels
+        show_col_labels = show_band_labels
+    else:
+        row_items, col_items = detected_bands, all_subs
+        row_text, col_text = _band_text, _sub_text
+        show_row_labels = show_band_labels
+        show_col_labels = show_sub_labels
+
+
+    n_rows, n_cols = len(row_items), len(col_items)
+
+    cell_w, cell_h = cell_width_in * PT, cell_height_in * PT
+    row_lbl_w = (row_label_width_in * PT) if show_row_labels else 0.0
+    col_lbl_h = (col_label_height_in * PT) if show_col_labels else 0.0
+    gap_x, gap_y, within_gap = gap_x_in * PT, gap_y_in * PT, within_gap_y_in * PT
+
+    block_h = 2 * cell_h + within_gap   # height of ONE block-row's stacked pair
+
+    total_w = row_lbl_w + n_cols * (cell_w + gap_x) - gap_x
+    total_h = col_lbl_h + n_rows * block_h + (n_rows - 1) * gap_y
+
+    out_doc = fitz.open()
+    out_page = out_doc.new_page(width=total_w, height=total_h)
+
+    font_path_bold = os.path.join(matplotlib.get_data_path(), "fonts", "ttf", "DejaVuSans-Bold.ttf")
+
+    # ── column headers ────────────────────────────────────────────────────
+    if show_col_labels:
+        col_label_vshift_in = 0.2
+        for col, item in enumerate(col_items):
+            x = row_lbl_w + col * (cell_w + gap_x)
+            y0 = col_label_vshift_in * PT
+            rc = out_page.insert_textbox(
+                fitz.Rect(x, y0, x + cell_w, col_lbl_h + y0),
+                col_text(item), fontsize=col_label_fontsize,
+                fontfile=font_path_bold, fontname="F-bold",
+                align=fitz.TEXT_ALIGN_CENTER,
+            )
+            if rc < 0:
+                print(f"WARNING: column header {col_text(item)!r} did not fit "
+                      f"(short by {-rc:.1f}pt) — increase col_label_height_in")
+
+    # ── row labels, centered across BOTH stacked panels of the block ──────
+    if show_row_labels:
+        for row, item in enumerate(row_items):
+            y_block = col_lbl_h + row * (block_h + gap_y)
+            label = row_text(item)
+
+            row_rect = _vcenter_rect(
+                row_lbl_w, block_h, y_block + row_label_vshift_in * PT,
+                label, row_label_fontsize, font_path_bold, "F-bold",
+            )
+            rc = out_page.insert_textbox(
+                row_rect, label, fontsize=row_label_fontsize,
+                fontfile=font_path_bold, fontname="F-bold",
+                align=fitz.TEXT_ALIGN_CENTER,
+            )
+            if rc < 0:
+                print(f"WARNING: row label {label!r} did not fit "
+                      f"(short by {-rc:.1f}pt) — increase row_label_width_in or lower fontsize")
+
+    # ── panels: folder_a on top, folder_b directly below, per block/column ─
+    src_docs = []
+    for row, row_item in enumerate(row_items):
+        y_block = col_lbl_h + row * (block_h + gap_y)
+        y_a = y_block
+        y_b = y_a + cell_h + within_gap
+
+        for col, col_item in enumerate(col_items):
+            band, sub = (col_item, row_item) if transpose else (row_item, col_item)
+            x = row_lbl_w + col * (cell_w + gap_x)
+
+            for y_pos, index, vanchor in ((y_a, file_index_a, "bottom"), (y_b, file_index_b, "top")):
+                fpath = index.get(band, {}).get(sub)
+                cell_rect = fitz.Rect(x, y_pos, x + cell_w, y_pos + cell_h)
+
+                if fpath is None:
+                    out_page.insert_textbox(cell_rect, "N/A", fontsize=12,
+                                             align=fitz.TEXT_ALIGN_CENTER, color=(0.5, 0.5, 0.5))
+                    continue
+
+                src_doc = fitz.open(str(fpath))
+                src_page = src_doc[0]
+
+                scale = min(cell_w / src_page.rect.width, cell_h / src_page.rect.height)
+                fit_w, fit_h = src_page.rect.width * scale, src_page.rect.height * scale
+                offset_x = x + (cell_w - fit_w) / 2
+                if vanchor == "bottom":
+                    offset_y = y_pos + (cell_h - fit_h)   # push to bottom of its cell
+                else:
+                    offset_y = y_pos                       # push to top of its cell
+                fit_rect = fitz.Rect(offset_x, offset_y, offset_x + fit_w, offset_y + fit_h)
+
+                if raster_dpi is None:
+                    out_page.show_pdf_page(fit_rect, src_doc, 0)
+                    src_docs.append(src_doc)   # must stay open until save
+                else:
+                    zoom = raster_dpi / 72.0
+                    pix = src_page.get_pixmap(matrix=fitz.Matrix(zoom, zoom), alpha=False)
+                    out_page.insert_image(fit_rect, pixmap=pix)
+                    src_doc.close()
+
+    # ── solid divider lines between blocks (bands, or subjects if transposed)
+    body_left = 0
+    body_right = total_w
+
+    for row in range(1, n_rows):
+        y_gap_mid = col_lbl_h + row * (block_h + gap_y) - gap_y / 2
+        out_page.draw_line(
+            fitz.Point(body_left, y_gap_mid),
+            fitz.Point(body_right, y_gap_mid),
+            color=divider_color, width=divider_width,
+        )
+
+    if save_dir:
+        os.makedirs(save_dir, exist_ok=True)
+        out_path = os.path.join(save_dir, out_filename)
+        out_doc.save(out_path, garbage=4, deflate=True)
+        mode = "fully vector" if raster_dpi is None else f"raster panels @ {raster_dpi:g} dpi, vector labels"
+        print(f"Saved ({mode}) → {out_path}")
+
+    out_doc.close()
+    for d in src_docs:
+        d.close()
+
+
+
+
+
+# def build_vector_grid_pdf_dual_folder(
+#     image_dir_a: str,
+#     image_dir_b: str,
+#     bands: list = None,
+#     pat_state: list = None,
+#     save_dir: str = None,
+#     sub_labels: dict = None,
+#     cell_width_in: float = 4.0,
+#     cell_height_in: float = 1.8,
+#     row_label_width_in: float = 0.7,   # transpose + labels: use ~1.6 for "SUB1 (UWS)"
+#     col_label_height_in: float = 0.5,
+#     col_label_fontsize: int = 18,
+#     gap_x_in: float = 0.05,
+#     gap_y_in: float = 0.06,          # gap BETWEEN blocks (bands, or subjects if transposed)
+#     within_gap_y_in: float = 0.01,   # gap between the two stacked panels of the SAME pair
+#     row_label_fontsize: int = 24,
+#     row_label_vshift_in: float = 0.08,
+#     out_filename: str = "all_subs_all_bands_dual.pdf",
+#     divider_color: tuple = (0.5, 0.5, 0.5),  # medium-dark gray, RGB 0-1
+#     divider_width: float = 0.75,
+#     transpose: bool = False,        # True → subjects as rows, bands as columns
+#     show_sub_labels: bool = True,   # False → omit subject labels entirely
+#     raster_dpi: float = 200,        # rasterize panels at this DPI; None → full vector embed
+#     sub_label_position: str = "side",   # "side" | "bottom" (transpose only): labels in a strip
+#                                         # under each subject's panels, above the divider — no
+#                                         # left margin, full width stays with the figures
+#     sub_label_height_in: float = 0.55,  # height of the bottom label strip (must exceed
+#                                         # ~1.2x row_label_fontsize in points / 72)
+# ):
+#     """
+#     Like build_vector_grid_pdf, but pulls one panel per (sub, band) from EACH
+#     of two folders and stacks them vertically (folder_a on top, folder_b
+#     directly below) inside every cell block.
+
+#     Default layout: bands as block-rows (Greek row labels centered across the
+#     stacked pair), subjects as columns. With transpose=True: subjects as
+#     block-rows (labels optional via show_sub_labels), bands as columns with
+#     Greek headers; each block-row is one subject, and divider lines separate
+#     subjects instead of bands. The a-over-b stacking within each block is the
+#     same in both orientations.
+
+#     Filenames in both folders are matched generically as:
+#         {sub}_<anything>_{band}.pdf
+
+#     By default (raster_dpi=200) each panel is rasterized to an image at that
+#     DPI and placed in its cell, while the grid labels remain real vector
+#     text; this keeps the merged file small and fast to render. Set
+#     raster_dpi=None for the old fully-vector embed of every panel.
+#     """
+#     import re
+#     import os
+#     from pathlib import Path
+#     import matplotlib
+#     import fitz  # PyMuPDF
+
+#     def _vcenter_rect(width_pt, height_pt, y0, text, fontsize, fontfile, fontname):
+#         tmp_doc = fitz.open()
+#         tmp_page = tmp_doc.new_page(width=width_pt, height=height_pt)
+#         rc = tmp_page.insert_textbox(
+#             fitz.Rect(0, 0, width_pt, height_pt),
+#             text, fontsize=fontsize, fontfile=fontfile, fontname=fontname,
+#             align=fitz.TEXT_ALIGN_CENTER,
+#         )
+#         tmp_doc.close()
+#         shift = max(rc, 0) / 2
+#         return fitz.Rect(0, y0 + shift, width_pt, y0 + height_pt + shift)
+
+#     def _build_file_index(folder):
+#         pattern = re.compile(r"^(?P<sub>[^_]+)_.*_(?P<band>[^_]+)\.pdf$")
+#         idx = {}
+#         for fpath in sorted(Path(folder).glob("*.pdf")):
+#             m = pattern.match(fpath.name)
+#             if m is None:
+#                 continue
+#             idx.setdefault(m.group("band"), {})[m.group("sub")] = fpath
+#         return idx
+
+#     PT = 72
+
+#     greek_symbols = {
+#         'delta': '\u03b4', 'theta': '\u03b8', 'alpha': '\u03b1',
+#         'beta': '\u03b2', 'gamma': '\u03b3', 'gamma low': '\u03b3',
+#         'Offset': 'b', 'Exponent': '\u03c7',
+#     }
+
+#     file_index_a = _build_file_index(image_dir_a)
+#     file_index_b = _build_file_index(image_dir_b)
+
+#     if not file_index_a and not file_index_b:
+#         print(f"No matching files found in {image_dir_a} or {image_dir_b}")
+#         return
+
+#     all_bands_found = set(file_index_a.keys()) | set(file_index_b.keys())
+#     detected_bands = [b for b in bands if b in all_bands_found] if bands else sorted(all_bands_found)
+
+#     all_subs = sorted(
+#         {s for d in file_index_a.values() for s in d.keys()} |
+#         {s for d in file_index_b.values() for s in d.keys()}
+#     )
+
+#     # ── label text helpers ────────────────────────────────────────────────
+#     start_offset = list(pat_state.keys()).index(all_subs[0]) if pat_state else 0
+
+#     def _band_text(band):
+#         return greek_symbols.get(band, band.upper())
+
+#     def _sub_text(sub):
+#         idx = all_subs.index(sub)
+#         sub_label = sub_labels[sub] if sub_labels and sub in sub_labels else f"SUB{start_offset + idx + 1}"
+#         state = f" ({pat_state[sub]})" if pat_state and sub in pat_state else ""
+#         return f"{sub_label}{state}"
+
+#     # ── orientation mapping ───────────────────────────────────────────────
+#     bottom_sub_labels = (sub_label_position == "bottom" and transpose and show_sub_labels)
+
+#     if transpose:
+#         row_items, col_items = all_subs, detected_bands     # subs=rows, bands=cols
+#         row_text, col_text = _sub_text, _band_text
+#         # with bottom labels, the side column is suppressed entirely
+#         show_row_labels = show_sub_labels and not bottom_sub_labels
+#         show_col_labels = True
+#     else:
+#         row_items, col_items = detected_bands, all_subs
+#         row_text, col_text = _band_text, _sub_text
+#         show_row_labels = True
+#         show_col_labels = show_sub_labels
+#     n_rows, n_cols = len(row_items), len(col_items)
+
+#     cell_w, cell_h = cell_width_in * PT, cell_height_in * PT
+#     row_lbl_w = (row_label_width_in * PT) if show_row_labels else 0.0
+#     col_lbl_h = (col_label_height_in * PT) if show_col_labels else 0.0
+#     gap_x, gap_y, within_gap = gap_x_in * PT, gap_y_in * PT, within_gap_y_in * PT
+
+#     sub_lbl_h = (sub_label_height_in * PT) if bottom_sub_labels else 0.0
+#     block_h = 2 * cell_h + within_gap + sub_lbl_h   # stacked pair (+ label strip if bottom labels)
+
+#     total_w = row_lbl_w + n_cols * (cell_w + gap_x) - gap_x
+#     total_h = col_lbl_h + n_rows * block_h + (n_rows - 1) * gap_y
+
+#     out_doc = fitz.open()
+#     out_page = out_doc.new_page(width=total_w, height=total_h)
+
+#     font_path_bold = os.path.join(matplotlib.get_data_path(), "fonts", "ttf", "DejaVuSans-Bold.ttf")
+
+#     # ── column headers ────────────────────────────────────────────────────
+#     if show_col_labels:
+#         col_label_vshift_in = 0.2
+#         for col, item in enumerate(col_items):
+#             x = row_lbl_w + col * (cell_w + gap_x)
+#             y0 = col_label_vshift_in * PT
+#             rc = out_page.insert_textbox(
+#                 fitz.Rect(x, y0, x + cell_w, col_lbl_h + y0),
+#                 col_text(item), fontsize=col_label_fontsize,
+#                 fontfile=font_path_bold, fontname="F-bold",
+#                 align=fitz.TEXT_ALIGN_CENTER,
+#             )
+#             if rc < 0:
+#                 print(f"WARNING: column header {col_text(item)!r} did not fit "
+#                       f"(short by {-rc:.1f}pt) — increase col_label_height_in")
+
+#     # ── row labels, centered across BOTH stacked panels of the block ──────
+#     if show_row_labels:
+#         for row, item in enumerate(row_items):
+#             y_block = col_lbl_h + row * (block_h + gap_y)
+#             label = row_text(item)
+
+#             row_rect = _vcenter_rect(
+#                 row_lbl_w, block_h, y_block + row_label_vshift_in * PT,
+#                 label, row_label_fontsize, font_path_bold, "F-bold",
+#             )
+#             rc = out_page.insert_textbox(
+#                 row_rect, label, fontsize=row_label_fontsize,
+#                 fontfile=font_path_bold, fontname="F-bold",
+#                 align=fitz.TEXT_ALIGN_CENTER,
+#             )
+#             if rc < 0:
+#                 print(f"WARNING: row label {label!r} did not fit "
+#                       f"(short by {-rc:.1f}pt) — increase row_label_width_in or lower fontsize")
+
+#     # ── panels: folder_a on top, folder_b directly below, per block/column ─
+#     src_docs = []
+#     for row, row_item in enumerate(row_items):
+#         y_block = col_lbl_h + row * (block_h + gap_y)
+#         y_a = y_block
+#         y_b = y_a + cell_h + within_gap
+
+#         for col, col_item in enumerate(col_items):
+#             band, sub = (col_item, row_item) if transpose else (row_item, col_item)
+#             x = row_lbl_w + col * (cell_w + gap_x)
+
+#             for y_pos, index, vanchor in ((y_a, file_index_a, "bottom"), (y_b, file_index_b, "top")):
+#                 fpath = index.get(band, {}).get(sub)
+#                 cell_rect = fitz.Rect(x, y_pos, x + cell_w, y_pos + cell_h)
+
+#                 if fpath is None:
+#                     out_page.insert_textbox(cell_rect, "N/A", fontsize=12,
+#                                              align=fitz.TEXT_ALIGN_CENTER, color=(0.5, 0.5, 0.5))
+#                     continue
+
+#                 src_doc = fitz.open(str(fpath))
+#                 src_page = src_doc[0]
+
+#                 scale = min(cell_w / src_page.rect.width, cell_h / src_page.rect.height)
+#                 fit_w, fit_h = src_page.rect.width * scale, src_page.rect.height * scale
+#                 offset_x = x + (cell_w - fit_w) / 2
+#                 if vanchor == "bottom":
+#                     offset_y = y_pos + (cell_h - fit_h)   # push to bottom of its cell
+#                 else:
+#                     offset_y = y_pos                       # push to top of its cell
+#                 fit_rect = fitz.Rect(offset_x, offset_y, offset_x + fit_w, offset_y + fit_h)
+
+#                 if raster_dpi is None:
+#                     out_page.show_pdf_page(fit_rect, src_doc, 0)
+#                     src_docs.append(src_doc)   # must stay open until save
+#                 else:
+#                     zoom = raster_dpi / 72.0
+#                     pix = src_page.get_pixmap(matrix=fitz.Matrix(zoom, zoom), alpha=False)
+#                     out_page.insert_image(fit_rect, pixmap=pix)
+#                     src_doc.close()
+
+#     # ── bottom subject labels: strip under each block, above the divider ──
+#     if bottom_sub_labels:
+#         for row, row_item in enumerate(row_items):
+#             y_block = col_lbl_h + row * (block_h + gap_y)
+#             y_strip = y_block + 2 * cell_h + within_gap
+#             label = _sub_text(row_item)
+#             rc = out_page.insert_textbox(
+#                 fitz.Rect(6, y_strip, total_w, y_strip + sub_lbl_h),
+#                 label, fontsize=row_label_fontsize,
+#                 fontfile=font_path_bold, fontname="F-bold",
+#                 align=fitz.TEXT_ALIGN_LEFT,
+#             )
+#             if rc < 0:
+#                 print(f"WARNING: bottom subject label {label!r} did not fit "
+#                       f"(short by {-rc:.1f}pt) — increase sub_label_height_in or lower fontsize")
+
+#     # ── solid divider lines between blocks (bands, or subjects if transposed)
+#     body_left = 0
+#     body_right = total_w
+
+#     for row in range(1, n_rows):
+#         y_gap_mid = col_lbl_h + row * (block_h + gap_y) - gap_y / 2
+#         out_page.draw_line(
+#             fitz.Point(body_left, y_gap_mid),
+#             fitz.Point(body_right, y_gap_mid),
+#             color=divider_color, width=divider_width,
+#         )
+
+#     if save_dir:
+#         os.makedirs(save_dir, exist_ok=True)
+#         out_path = os.path.join(save_dir, out_filename)
+#         out_doc.save(out_path, garbage=4, deflate=True)
+#         mode = "fully vector" if raster_dpi is None else f"raster panels @ {raster_dpi:g} dpi, vector labels"
+#         print(f"Saved ({mode}) → {out_path}")
+
+#     out_doc.close()
+#     for d in src_docs:
+#         d.close()
+
+
+
+
+
+
+
+
+
+
+
+        
 region_to_anatomical_cluster = {
     # ==================== 1. PRIMARY SENSORY & MOTOR ====================
     'Precentral_L': 'Primary_Motor',

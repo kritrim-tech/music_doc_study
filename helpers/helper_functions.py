@@ -428,7 +428,7 @@ def build_vector_grid_pdf(
     sub_labels: dict = None,
     cell_width_in: float = 4.0,
     cell_height_in: float = 1.8,        # ← try shrinking this to reduce empty space
-    row_label_width_in: float = 0.7,
+    row_label_width_in: float = 0.7,    # transpose + labels: use ~1.6 for "SUB1 (UWS)"
     col_label_height_in: float = 0.5,
     col_label_fontsize: int = 18,
     gap_x_in: float = 0.05,
@@ -436,9 +436,18 @@ def build_vector_grid_pdf(
     row_label_fontsize: int = 22,
     row_label_vshift_in: float = 0.08,
     out_filename: str = None,
+    transpose: bool = False,        # True → subjects as rows, bands as columns
+    show_sub_labels: bool = True,   # False → omit subject labels entirely
+    raster_dpi: float = 200,
 ):
     """
     True-vector grid: subject/band PDF panels + text labels, no rasterization.
+
+    Default layout: bands as rows (Greek row labels), subjects as columns
+    (header labels). With transpose=True: subjects as rows, bands as columns;
+    subject labels (if shown) become the row labels and Greek symbols the
+    column headers. show_sub_labels=False suppresses subject labels in either
+    layout (name the subjects in the figure caption instead).
     """
     import re
     import os
@@ -488,14 +497,41 @@ def build_vector_grid_pdf(
 
     detected_bands = [b for b in bands if b in file_index] if bands else sorted(file_index.keys())
     all_subs = sorted({s for d in file_index.values() for s in d.keys()})
-    n_bands, n_subs = len(detected_bands), len(all_subs)
+
+    # ── label text helpers ────────────────────────────────────────────────
+    def _band_text(band):
+        return greek_symbols.get(band, band.upper())
+
+    def _sub_text(sub):
+        if sub_labels and sub in sub_labels:
+            sub_label = sub_labels[sub]
+        elif pat_state and sub in pat_state:
+            sub_label = f"SUB{list(pat_state.keys()).index(sub) + 1}"
+        else:
+            sub_label = f"SUB{all_subs.index(sub) + 1}"
+        state = f" ({pat_state[sub]})" if pat_state and sub in pat_state else ""
+        return f"{sub_label}{state}"
+
+    # ── orientation mapping ───────────────────────────────────────────────
+    if transpose:
+        row_items, col_items = all_subs, detected_bands     # subs=rows, bands=cols
+        row_text, col_text = _sub_text, _band_text
+        show_row_labels = show_sub_labels
+        show_col_labels = True
+    else:
+        row_items, col_items = detected_bands, all_subs
+        row_text, col_text = _band_text, _sub_text
+        show_row_labels = True
+        show_col_labels = show_sub_labels
+    n_rows, n_cols = len(row_items), len(col_items)
 
     cell_w, cell_h = cell_width_in * PT, cell_height_in * PT
-    row_lbl_w, col_lbl_h = row_label_width_in * PT, col_label_height_in * PT
+    row_lbl_w = (row_label_width_in * PT) if show_row_labels else 0.0
+    col_lbl_h = (col_label_height_in * PT) if show_col_labels else 0.0
     gap_x, gap_y = gap_x_in * PT, gap_y_in * PT
 
-    total_w = row_lbl_w + n_subs * (cell_w + gap_x) - gap_x
-    total_h = col_lbl_h + n_bands * (cell_h + gap_y) - gap_y
+    total_w = row_lbl_w + n_cols * (cell_w + gap_x) - gap_x
+    total_h = col_lbl_h + n_rows * (cell_h + gap_y) - gap_y
 
     out_doc = fitz.open()
     out_page = out_doc.new_page(width=total_w, height=total_h)
@@ -503,39 +539,40 @@ def build_vector_grid_pdf(
     font_path = os.path.join(matplotlib.get_data_path(), "fonts", "ttf", "DejaVuSans.ttf")
     font_path_bold = os.path.join(matplotlib.get_data_path(), "fonts", "ttf", "DejaVuSans-Bold.ttf")
 
-    # ── column headers (subjects) ─────────────────────────────────────────
+    # ── column headers ────────────────────────────────────────────────────
+    if show_col_labels:
+        col_label_vshift_in = 0.2
+        for col, item in enumerate(col_items):
+            x = row_lbl_w + col * (cell_w + gap_x)
+            y0 = col_label_vshift_in * PT
+            out_page.insert_textbox(
+                fitz.Rect(x, y0, x + cell_w, col_lbl_h + y0),
+                col_text(item), fontsize=col_label_fontsize,
+                fontfile=font_path_bold, fontname="F-bold",
+                align=fitz.TEXT_ALIGN_CENTER,
+            )
 
-    col_label_vshift_in = 0.2
-    for col, sub in enumerate(all_subs):
-        x = row_lbl_w + col * (cell_w + gap_x)
-        sub_label = sub_labels[sub] if sub_labels and sub in sub_labels else f"SUB{col + 1}"
-        state = f" ({pat_state[sub]})" if pat_state and sub in pat_state else ""
-        text = f"{sub_label}{state}"
-        y0 = col_label_vshift_in * PT
-        out_page.insert_textbox(
-            fitz.Rect(x, y0, x + cell_w, col_lbl_h + y0),
-            text, fontsize=col_label_fontsize, fontfile=font_path_bold, fontname="F-bold",
-            align=fitz.TEXT_ALIGN_CENTER,
-        )
-    # ── row labels (bands / params, Greek), vertically centered per row ────
-    for row, band in enumerate(detected_bands):
-        y = col_lbl_h + row * (cell_h + gap_y)
-        label = greek_symbols.get(band, band.upper())
+    # ── row labels, vertically centered per row ───────────────────────────
+    if show_row_labels:
+        for row, item in enumerate(row_items):
+            y = col_lbl_h + row * (cell_h + gap_y)
+            label = row_text(item)
 
-        row_rect = _vcenter_rect(
-            row_lbl_w, cell_h, y + row_label_vshift_in * PT,
-            label, row_label_fontsize, font_path_bold, "F-bold",
-        )
-        out_page.insert_textbox(
-            row_rect, label, fontsize=row_label_fontsize,
-            fontfile=font_path_bold, fontname="F-bold",
-            align=fitz.TEXT_ALIGN_CENTER,
-        )
+            row_rect = _vcenter_rect(
+                row_lbl_w, cell_h, y + row_label_vshift_in * PT,
+                label, row_label_fontsize, font_path_bold, "F-bold",
+            )
+            out_page.insert_textbox(
+                row_rect, label, fontsize=row_label_fontsize,
+                fontfile=font_path_bold, fontname="F-bold",
+                align=fitz.TEXT_ALIGN_CENTER,
+            )
 
     # ── panels: full vector embed via show_pdf_page ───────────────────────
     src_docs = []
-    for row, band in enumerate(detected_bands):
-        for col, sub in enumerate(all_subs):
+    for row, row_item in enumerate(row_items):
+        for col, col_item in enumerate(col_items):
+            band, sub = (col_item, row_item) if transpose else (row_item, col_item)
             fpath = file_index.get(band, {}).get(sub)
             x = row_lbl_w + col * (cell_w + gap_x)
             y = col_lbl_h + row * (cell_h + gap_y)
@@ -547,7 +584,6 @@ def build_vector_grid_pdf(
                 continue
 
             src_doc = fitz.open(str(fpath))
-            src_docs.append(src_doc)
             src_page = src_doc[0]
 
             scale = min(cell_w / src_page.rect.width, cell_h / src_page.rect.height)
@@ -556,7 +592,14 @@ def build_vector_grid_pdf(
             offset_y = y + (cell_h - fit_h) / 2
             fit_rect = fitz.Rect(offset_x, offset_y, offset_x + fit_w, offset_y + fit_h)
 
-            out_page.show_pdf_page(fit_rect, src_doc, 0)
+            if raster_dpi is None:
+                out_page.show_pdf_page(fit_rect, src_doc, 0)
+                src_docs.append(src_doc)   # must stay open until save
+            else:
+                zoom = raster_dpi / 72.0
+                pix = src_page.get_pixmap(matrix=fitz.Matrix(zoom, zoom), alpha=False)
+                out_page.insert_image(fit_rect, pixmap=pix)
+                src_doc.close()
 
     if save_dir:
         os.makedirs(save_dir, exist_ok=True)
@@ -564,10 +607,17 @@ def build_vector_grid_pdf(
             out_filename = f"all_subs_all_bands_{parad1}_{parad2}.pdf"
         out_path = os.path.join(save_dir, out_filename)
         out_doc.save(out_path, garbage=4, deflate=True)
+        mode = "fully vector" if raster_dpi is None else f"raster panels @ {raster_dpi:g} dpi, vector labels"
+        f"Saved ({mode}) → {out_path}"
 
     out_doc.close()
     for d in src_docs:
         d.close()
+
+
+
+
+
 
 
 
@@ -653,7 +703,6 @@ def plot_relative_difference_single_sub_band(
     )
 
     fig = plt.gcf()
-    fig = plt.gcf()
 
     # rasterize the surface meshes (and colorbar gradient); text stays vector
     for ax in fig.axes:
@@ -664,10 +713,11 @@ def plot_relative_difference_single_sub_band(
     sm.set_array([])
     cbar = fig.colorbar(sm, ax=fig.axes, fraction=0.02, pad=0.02, shrink=0.5)
     cbar.solids.set_rasterized(True)
-    ticks = np.linspace(vmin, vmax, 5)
+    # three ticks only: lower / middle / upper (middle is exactly 0 when symmetric)
+    ticks = [vmin, 0.0, vmax] if symmetric_cmap else list(np.linspace(vmin, vmax, 3))
     cbar.set_ticks(ticks)
     cbar.set_ticklabels([f"{t:.2f}" for t in ticks])
-    cbar.ax.tick_params(labelsize=18)
+    cbar.ax.tick_params(labelsize=22)
 
     if save_dir:
         os.makedirs(save_dir, exist_ok=True)
