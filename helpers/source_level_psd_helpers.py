@@ -139,12 +139,6 @@ def cluster_and_compare_fooof(
 
 
 
-
-
-# ─────────────────────────────────────────────────────────────────────────────
-# 1.  BOOTSTRAP SIGNIFICANCE
-# ─────────────────────────────────────────────────────────────────────────────
-
 def compute_bootstrap_pvals(
     cluster_means,
     condition1,
@@ -153,6 +147,7 @@ def compute_bootstrap_pvals(
     n_bootstrap=1000,
     alpha_level=0.05,
     rng_seed=42,
+    fdr_scope="network",
 ):
     """
     For every (subject, band, network) triple compute a permutation p-value
@@ -167,11 +162,16 @@ def compute_bootstrap_pvals(
     where `count` is the number of permuted differences whose absolute
     value meets or exceeds the absolute observed difference.
 
-    FDR correction (Benjamini-Hochberg) applied SEPARATELY for each
-    (subject, network) pair, across the frequency bands within that pair
-    only. No correction is applied across subjects (subject-specific
-    hypotheses) or across networks (the three networks were selected a
-    priori as planned comparisons).
+    FDR correction (Benjamini-Hochberg), family defined by `fdr_scope`:
+        "network" : separately for each (subject, network) pair, across the
+                    frequency bands within that pair only (default; the
+                    three networks are treated as a priori planned
+                    comparisons).
+        "subject" : separately for each subject, jointly across all
+                    (band, network) combinations (e.g. 5 bands x 3
+                    networks = 15 tests). Stricter; used as a sensitivity
+                    analysis.
+    No correction is applied across subjects (subject-specific hypotheses).
 
     Returns
     -------
@@ -180,17 +180,30 @@ def compute_bootstrap_pvals(
     ci_dict   : dict [sub][band][network] -> (ci_low, ci_high) of null dist
     obs_dict  : dict [sub][band][network] -> observed mean difference
     """
+    if fdr_scope not in ("network", "subject"):
+        raise ValueError("fdr_scope must be 'network' or 'subject'")
+
     rng      = np.random.default_rng(rng_seed)
     subjects = sorted(cluster_means.keys())
     networks = list(cluster_means[subjects[0]][condition1][bands[0]].keys())
 
     pval_dict, sig_dict, ci_dict, obs_dict = {}, {}, {}, {}
 
+    def _store(sub, keys, pvals_fdr, ci_low, ci_hi, obs):
+        for (band, net), p_fdr, cl, ch, od in zip(keys, pvals_fdr, ci_low, ci_hi, obs):
+            pval_dict.setdefault(sub, {}).setdefault(band, {})[net] = p_fdr
+            sig_dict.setdefault(sub, {}).setdefault(band, {})[net]  = p_fdr < alpha_level
+            ci_dict.setdefault(sub, {}).setdefault(band, {})[net]   = (cl, ch)
+            obs_dict.setdefault(sub, {}).setdefault(band, {})[net]  = od
+
     for sub in subjects:
+        # accumulators for fdr_scope == "subject" (all networks of this subject)
+        sub_keys, sub_raw, sub_ci_low, sub_ci_hi, sub_obs = [], [], [], [], []
+
         for net in networks:
 
             # ── collect raw (uncorrected) p-values across bands, for this (sub, net) ──
-            band_keys, raw_pvals, ci_low, ci_hi, obs = [], [], [], [], []
+            keys, raw_pvals, ci_low, ci_hi, obs = [], [], [], [], []
 
             for band in bands:
                 try:
@@ -220,7 +233,7 @@ def compute_bootstrap_pvals(
 
                 ci_l, ci_h = np.percentile(null_diffs, [2.5, 97.5])
 
-                band_keys.append(band)
+                keys.append((band, net))
                 raw_pvals.append(p)
                 ci_low.append(ci_l)
                 ci_hi.append(ci_h)
@@ -229,16 +242,122 @@ def compute_bootstrap_pvals(
             if not raw_pvals:
                 continue
 
-            # ── FDR correction across bands ONLY, within this (subject, network) pair ──
-            _, pvals_fdr = fdrcorrection(raw_pvals, alpha=alpha_level, method="indep")
+            if fdr_scope == "network":
+                # ── FDR across bands ONLY, within this (subject, network) pair ──
+                _, pvals_fdr = fdrcorrection(raw_pvals, alpha=alpha_level, method="indep")
+                _store(sub, keys, pvals_fdr, ci_low, ci_hi, obs)
+            else:
+                sub_keys   += keys
+                sub_raw    += raw_pvals
+                sub_ci_low += ci_low
+                sub_ci_hi  += ci_hi
+                sub_obs    += obs
 
-            for band, p_fdr, cl, ch, od in zip(band_keys, pvals_fdr, ci_low, ci_hi, obs):
-                pval_dict.setdefault(sub, {}).setdefault(band, {})[net] = p_fdr
-                sig_dict.setdefault(sub, {}).setdefault(band, {})[net]  = p_fdr < alpha_level
-                ci_dict.setdefault(sub, {}).setdefault(band, {})[net]   = (cl, ch)
-                obs_dict.setdefault(sub, {}).setdefault(band, {})[net]  = od
+        if fdr_scope == "subject" and sub_raw:
+            # ── FDR jointly across all (band, network) tests of this subject ──
+            _, pvals_fdr = fdrcorrection(sub_raw, alpha=alpha_level, method="indep")
+            _store(sub, sub_keys, pvals_fdr, sub_ci_low, sub_ci_hi, sub_obs)
 
     return pval_dict, sig_dict, ci_dict, obs_dict
+
+# # ─────────────────────────────────────────────────────────────────────────────
+# # 1.  BOOTSTRAP SIGNIFICANCE
+# # ─────────────────────────────────────────────────────────────────────────────
+
+# def compute_bootstrap_pvals(
+#     cluster_means,
+#     condition1,
+#     condition2,
+#     bands,
+#     n_bootstrap=1000,
+#     alpha_level=0.05,
+#     rng_seed=42,
+# ):
+#     """
+#     For every (subject, band, network) triple compute a permutation p-value
+#     for the difference  mean(condition2) - mean(condition1).
+
+#     Null distribution: pool all epochs from both conditions, randomly split
+#     into two groups of the original sizes n_bootstrap times. This centres
+#     the null at 0 by construction.
+
+#     p-value: two-tailed, with continuity correction:
+#         p = (count + 1) / (n_bootstrap + 1)
+#     where `count` is the number of permuted differences whose absolute
+#     value meets or exceeds the absolute observed difference.
+
+#     FDR correction (Benjamini-Hochberg) applied SEPARATELY for each
+#     (subject, network) pair, across the frequency bands within that pair
+#     only. No correction is applied across subjects (subject-specific
+#     hypotheses) or across networks (the three networks were selected a
+#     priori as planned comparisons).
+
+#     Returns
+#     -------
+#     pval_dict : dict [sub][band][network] -> FDR-corrected p-value
+#     sig_dict  : dict [sub][band][network] -> bool
+#     ci_dict   : dict [sub][band][network] -> (ci_low, ci_high) of null dist
+#     obs_dict  : dict [sub][band][network] -> observed mean difference
+#     """
+#     rng      = np.random.default_rng(rng_seed)
+#     subjects = sorted(cluster_means.keys())
+#     networks = list(cluster_means[subjects[0]][condition1][bands[0]].keys())
+
+#     pval_dict, sig_dict, ci_dict, obs_dict = {}, {}, {}, {}
+
+#     for sub in subjects:
+#         for net in networks:
+
+#             # ── collect raw (uncorrected) p-values across bands, for this (sub, net) ──
+#             band_keys, raw_pvals, ci_low, ci_hi, obs = [], [], [], [], []
+
+#             for band in bands:
+#                 try:
+#                     v1 = np.asarray(cluster_means[sub][condition1][band][net], dtype=float)
+#                     v2 = np.asarray(cluster_means[sub][condition2][band][net], dtype=float)
+#                 except KeyError:
+#                     continue
+
+#                 v1 = v1[~np.isnan(v1)]
+#                 v2 = v2[~np.isnan(v2)]
+#                 if v1.size < 2 or v2.size < 2:
+#                     print(f"Skipping {sub}/{band}/{net}: too few valid epochs")
+#                     continue
+
+#                 observed_diff = np.mean(v2) - np.mean(v1)
+#                 n1, n2        = len(v1), len(v2)
+#                 pooled        = np.concatenate([v1, v2])
+
+#                 null_diffs = np.empty(n_bootstrap)
+#                 for i in range(n_bootstrap):
+#                     perm = rng.permutation(pooled)
+#                     null_diffs[i] = np.mean(perm[n1:]) - np.mean(perm[:n1])
+
+#                 # two-tailed p-value, continuity-corrected
+#                 count = np.sum(np.abs(null_diffs) >= np.abs(observed_diff))
+#                 p = (count + 1) / (n_bootstrap + 1)
+
+#                 ci_l, ci_h = np.percentile(null_diffs, [2.5, 97.5])
+
+#                 band_keys.append(band)
+#                 raw_pvals.append(p)
+#                 ci_low.append(ci_l)
+#                 ci_hi.append(ci_h)
+#                 obs.append(observed_diff)
+
+#             if not raw_pvals:
+#                 continue
+
+#             # ── FDR correction across bands ONLY, within this (subject, network) pair ──
+#             _, pvals_fdr = fdrcorrection(raw_pvals, alpha=alpha_level, method="indep")
+
+#             for band, p_fdr, cl, ch, od in zip(band_keys, pvals_fdr, ci_low, ci_hi, obs):
+#                 pval_dict.setdefault(sub, {}).setdefault(band, {})[net] = p_fdr
+#                 sig_dict.setdefault(sub, {}).setdefault(band, {})[net]  = p_fdr < alpha_level
+#                 ci_dict.setdefault(sub, {}).setdefault(band, {})[net]   = (cl, ch)
+#                 obs_dict.setdefault(sub, {}).setdefault(band, {})[net]  = od
+
+#     return pval_dict, sig_dict, ci_dict, obs_dict
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -315,6 +434,7 @@ def plot_band_power_comparisons(
     FS_YTICK = 20, 
     FS_LEG = 20, 
     FS_TITLE = 26,     show_ylabel=True,   # False -> omit the y-axis label text (state the unit in the caption)
+    fdr_scope="network"
 ):
     import os
     import matplotlib
@@ -360,7 +480,7 @@ def plot_band_power_comparisons(
     print("Running bootstrap tests …")
     pval_dict, sig_dict, ci_dict, obs_dict = compute_bootstrap_pvals(
         cluster_means, condition1, condition2,
-        bands=bands, n_bootstrap=n_bootstrap, alpha_level=alpha_level,
+        bands=bands, n_bootstrap=n_bootstrap, alpha_level=alpha_level, fdr_scope=fdr_scope
     )
     print("Done.")
 
@@ -657,7 +777,7 @@ def stack_subject_figures_pdf(
 
 
 def build_cluster_summary(fdr_corrected_p_vals, power_dict, condition1, condition2, band, sub_id,
-                           label_region_mapping, region_to_anatomical_lobe, alpha=0.05):
+                           label_region_mapping, region_to_anatomical_lobe, alpha=0.05, difference="relative"):
     """
     For one subject/band, aggregate region-level significance + directionality
     into anatomical-cluster-level summaries.
@@ -677,8 +797,14 @@ def build_cluster_summary(fdr_corrected_p_vals, power_dict, condition1, conditio
     v1 = v1.ravel()
     v2 = v2.ravel()
 
-    with np.errstate(divide='ignore', invalid='ignore'):
-        frac_diff = np.where(v1 != 0, (v2 - v1) / v1, np.nan)
+    # with np.errstate(divide='ignore', invalid='ignore'):
+    #     frac_diff = np.where(v1 != 0, (v2 - v1) / v1, np.nan)
+
+    if difference == "absolute":
+        frac_diff = v2 - v1
+    else:
+        with np.errstate(divide='ignore', invalid='ignore'):
+            frac_diff = np.where(v1 != 0, (v2 - v1) / v1, np.nan)
 
 
 
@@ -704,9 +830,14 @@ def build_cluster_summary(fdr_corrected_p_vals, power_dict, condition1, conditio
     return summary
 
 
+
+
+
+
+
 def build_cluster_summary_all(fdr_corrected_p_vals, power_dict, condition1, condition2, bands,
                                label_region_mapping, region_to_anatomical_lobe, alpha=0.05,
-                               subjects=None):
+                               subjects=None, difference="relative"):
     subjects = subjects or sorted(fdr_corrected_p_vals.keys())
     result = {}
     for sub_id in subjects:
@@ -714,7 +845,7 @@ def build_cluster_summary_all(fdr_corrected_p_vals, power_dict, condition1, cond
         for band in bands:
             result[sub_id][band] = build_cluster_summary(
                 fdr_corrected_p_vals, power_dict, condition1, condition2, band, sub_id,
-                label_region_mapping, region_to_anatomical_lobe, alpha=alpha,
+                label_region_mapping, region_to_anatomical_lobe, alpha=alpha, difference=difference
             )
     return result
 

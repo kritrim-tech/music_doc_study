@@ -1,0 +1,326 @@
+NETWORK-LEVEL RESULTS SUMMARY  (p FDR-corrected per subject across all band-network tests; sign = mean(condition2) - mean(condition1); * = p < 0.05)
+
+=== 1. initial rest vs continuous music (full N)  [rest_init -> reward] ===
+epochs per condition: {'sub01': 80, 'sub03': 77, 'sub04': 35, 'sub07': 73, 'sub09': 67, 'sub10': 43, 'sub12': 53}
+  sub01 periodic  SMN  d:0.002(-)*  t:0.002(-)*  a:0.002(+)*  b:0.002(+)*  g:0.625(-) 
+  sub01 periodic  DMN  d:0.146(-)   t:0.116(-)   a:0.003(+)*  b:0.002(+)*  g:0.002(-)*
+  sub01 periodic  LN   d:0.545(+)   t:0.165(-)   a:0.002(+)*  b:0.002(+)*  g:0.002(-)*
+  sub03 periodic  SMN  d:0.001(-)*  t:0.001(+)*  a:0.001(+)*  b:0.001(-)*  g:0.001(-)*
+  sub03 periodic  DMN  d:0.016(-)*  t:0.001(+)*  a:0.001(+)*  b:0.987(-)   g:0.001(-)*
+  sub03 periodic  LN   d:0.002(-)*  t:0.001(+)*  a:0.001(+)*  b:0.001(-)*  g:0.001(-)*
+  sub04 periodic  SMN  d:0.247(-)   t:0.048(+)*  a:0.022(+)*  b:0.757(+)   g:0.412(+) 
+  sub04 periodic  DMN  d:0.130(-)   t:0.757(+)   a:0.020(+)*  b:0.206(+)   g:0.412(-) 
+  sub04 periodic  LN   d:0.020(-)*  t:0.992(+)   a:0.015(+)*  b:0.648(+)   g:0.992(-) 
+  sub07 periodic  SMN  d:0.148(+)   t:0.001(+)*  a:0.001(+)*  b:0.054(+)   g:0.001(-)*
+  sub07 periodic  DMN  d:0.890(+)   t:0.001(+)*  a:0.001(+)*  b:0.001(+)*  g:0.001(-)*
+  sub07 periodic  LN   d:0.746(-)   t:0.001(+)*  a:0.001(+)*  b:0.003(+)*  g:0.001(-)*
+  sub09 periodic  SMN  d:0.001(+)*  t:0.001(-)*  a:0.001(-)*  b:0.001(-)*  g:0.001(+)*
+  sub09 periodic  DMN  d:0.001(+)*  t:0.001(-)*  a:0.001(-)*  b:0.001(-)*  g:0.001(+)*
+  sub09 periodic  LN   d:0.001(+)*  t:0.001(-)*  a:0.001(-)*  b:0.001(-)*  g:0.001(+)*
+  sub10 periodic  SMN  d:0.686(-)   t:0.967(+)   a:0.967(-)   b:0.967(+)   g:0.686(+) 
+  sub10 periodic  DMN  d:0.967(-)   t:0.758(+)   a:0.811(-)   b:0.686(+)   g:0.686(+) 
+  sub10 periodic  LN   d:0.758(-)   t:0.967(+)   a:0.967(+)   b:0.686(+)   g:0.811(+) 
+  sub12 periodic  SMN  d:0.001(-)*  t:0.293(-)   a:0.001(+)*  b:0.001(+)*  g:0.001(-)*
+  sub12 periodic  DMN  d:0.019(-)*  t:0.192(-)   a:0.001(+)*  b:0.001(+)*  g:0.001(-)*
+  sub12 periodic  LN   d:0.019(-)*  t:0.828(-)   a:0.001(+)*  b:0.001(+)*  g:0.001(-)*
+  sub01 aperiodic SMN  Off:0.004(+)*  Exp:0.002(+)*
+  sub01 aperiodic DMN  Off:0.686(+)   Exp:0.002(+)*
+  sub01 aperiodic LN   Off:0.388(+)   Exp:0.002(+)*
+  sub03 aperiodic SMN  Off:0.001(+)*  Exp:0.001(+)*
+  sub03 aperiodic DMN  Off:0.001(+)*  Exp:0.001(+)*
+  sub03 aperiodic LN   Off:0.001(+)*  Exp:0.001(+)*
+  sub04 aperiodic SMN  Off:0.444(+)   Exp:0.070(+) 
+  sub04 aperiodic DMN  Off:0.312(+)   Exp:0.070(+) 
+  sub04 aperiodic LN   Off:0.133(+)   Exp:0.070(+) 
+  sub07 aperiodic SMN  Off:0.003(+)*  Exp:0.002(+)*
+  sub07 aperiodic DMN  Off:0.125(+)   Exp:0.002(+)*
+  sub07 aperiodic LN   Off:0.188(+)   Exp:0.002(+)*
+  sub09 aperiodic SMN  Off:0.709(-)   Exp:0.002(-)*
+  sub09 aperiodic DMN  Off:0.709(+)   Exp:0.002(-)*
+  sub09 aperiodic LN   Off:0.709(-)   Exp:0.002(-)*
+  sub10 aperiodic SMN  Off:0.881(-)   Exp:0.881(-) 
+  sub10 aperiodic DMN  Off:0.881(+)   Exp:0.881(+) 
+  sub10 aperiodic LN   Off:0.881(-)   Exp:0.881(-) 
+  sub12 aperiodic SMN  Off:0.020(+)*  Exp:0.001(+)*
+  sub12 aperiodic DMN  Off:0.001(+)*  Exp:0.001(+)*
+  sub12 aperiodic LN   Off:0.001(+)*  Exp:0.001(+)*
+  SIG sub01: 14  p:d-SMN(-), p:t-SMN(-), p:a-SMN(+), p:a-DMN(+), p:a-LN(+), p:b-SMN(+), p:b-DMN(+), p:b-LN(+), p:g-DMN(-), p:g-LN(-), a:Off-SMN(+), a:Exp-SMN(+), a:Exp-DMN(+), a:Exp-LN(+)
+  SIG sub03: 20  p:d-SMN(-), p:d-DMN(-), p:d-LN(-), p:t-SMN(+), p:t-DMN(+), p:t-LN(+), p:a-SMN(+), p:a-DMN(+), p:a-LN(+), p:b-SMN(-), p:b-LN(-), p:g-SMN(-), p:g-DMN(-), p:g-LN(-), a:Off-SMN(+), a:Off-DMN(+), a:Off-LN(+), a:Exp-SMN(+), a:Exp-DMN(+), a:Exp-LN(+)
+  SIG sub04:  5  p:d-LN(-), p:t-SMN(+), p:a-SMN(+), p:a-DMN(+), p:a-LN(+)
+  SIG sub07: 15  p:t-SMN(+), p:t-DMN(+), p:t-LN(+), p:a-SMN(+), p:a-DMN(+), p:a-LN(+), p:b-DMN(+), p:b-LN(+), p:g-SMN(-), p:g-DMN(-), p:g-LN(-), a:Off-SMN(+), a:Exp-SMN(+), a:Exp-DMN(+), a:Exp-LN(+)
+  SIG sub09: 18  p:d-SMN(+), p:d-DMN(+), p:d-LN(+), p:t-SMN(-), p:t-DMN(-), p:t-LN(-), p:a-SMN(-), p:a-DMN(-), p:a-LN(-), p:b-SMN(-), p:b-DMN(-), p:b-LN(-), p:g-SMN(+), p:g-DMN(+), p:g-LN(+), a:Exp-SMN(-), a:Exp-DMN(-), a:Exp-LN(-)
+  SIG sub10:  0  
+  SIG sub12: 18  p:d-SMN(-), p:d-DMN(-), p:d-LN(-), p:a-SMN(+), p:a-DMN(+), p:a-LN(+), p:b-SMN(+), p:b-DMN(+), p:b-LN(+), p:g-SMN(-), p:g-DMN(-), p:g-LN(-), a:Off-SMN(+), a:Off-DMN(+), a:Off-LN(+), a:Exp-SMN(+), a:Exp-DMN(+), a:Exp-LN(+)
+
+=== 2. segmented pink noise vs segmented music  [pink_segs -> music_segs] ===
+epochs per condition: {'sub07': 125, 'sub09': 93, 'sub10': 35, 'sub12': 82}
+  sub07 periodic  SMN  d:0.997(-)   t:0.997(+)   a:0.997(+)   b:0.997(+)   g:0.997(-) 
+  sub07 periodic  DMN  d:0.997(+)   t:0.997(+)   a:0.997(+)   b:0.997(-)   g:0.997(-) 
+  sub07 periodic  LN   d:0.997(+)   t:0.997(+)   a:0.997(+)   b:0.997(+)   g:0.997(-) 
+  sub09 periodic  SMN  d:0.764(-)   t:0.342(+)   a:0.759(+)   b:0.492(+)   g:0.764(-) 
+  sub09 periodic  DMN  d:0.190(-)   t:0.195(+)   a:0.549(+)   b:0.516(+)   g:0.492(-) 
+  sub09 periodic  LN   d:0.190(-)   t:0.190(+)   a:0.516(+)   b:0.880(-)   g:0.549(-) 
+  sub10 periodic  SMN  d:0.005(-)*  t:0.116(+)   a:0.116(+)   b:0.177(+)   g:0.702(-) 
+  sub10 periodic  DMN  d:0.005(-)*  t:0.015(+)*  a:0.015(+)*  b:0.294(+)   g:0.522(-) 
+  sub10 periodic  LN   d:0.005(-)*  t:0.157(+)   a:0.082(+)   b:0.616(+)   g:0.702(-) 
+  sub12 periodic  SMN  d:0.865(-)   t:0.865(+)   a:0.865(-)   b:0.865(+)   g:0.931(-) 
+  sub12 periodic  DMN  d:0.865(-)   t:0.865(+)   a:0.865(-)   b:0.757(-)   g:0.865(-) 
+  sub12 periodic  LN   d:0.865(-)   t:0.865(+)   a:0.757(-)   b:0.938(-)   g:0.865(-) 
+  sub07 aperiodic SMN  Off:0.881(+)   Exp:0.881(-) 
+  sub07 aperiodic DMN  Off:0.881(+)   Exp:0.881(-) 
+  sub07 aperiodic LN   Off:0.881(-)   Exp:0.881(-) 
+  sub09 aperiodic SMN  Off:0.181(-)   Exp:0.255(-) 
+  sub09 aperiodic DMN  Off:0.171(-)   Exp:0.171(-) 
+  sub09 aperiodic LN   Off:0.171(-)   Exp:0.171(-) 
+  sub10 aperiodic SMN  Off:0.967(+)   Exp:0.967(+) 
+  sub10 aperiodic DMN  Off:0.967(-)   Exp:0.967(+) 
+  sub10 aperiodic LN   Off:0.967(+)   Exp:0.967(+) 
+  sub12 aperiodic SMN  Off:0.842(+)   Exp:0.842(+) 
+  sub12 aperiodic DMN  Off:0.842(-)   Exp:0.842(-) 
+  sub12 aperiodic LN   Off:0.842(-)   Exp:0.842(-) 
+  SIG sub07:  0  
+  SIG sub09:  0  
+  SIG sub10:  5  p:d-SMN(-), p:d-DMN(-), p:d-LN(-), p:t-DMN(+), p:a-DMN(+)
+  SIG sub12:  0  
+
+=== 3. continuous pink noise vs continuous music  [pink_noise -> reward] ===
+epochs per condition: {'sub09': 51, 'sub10': 36, 'sub12': 53}
+  sub09 periodic  SMN  d:0.790(-)   t:0.282(-)   a:0.531(-)   b:0.255(-)   g:0.015(+)*
+  sub09 periodic  DMN  d:0.904(-)   t:0.802(-)   a:0.620(+)   b:0.215(-)   g:0.531(+) 
+  sub09 periodic  LN   d:0.921(-)   t:0.620(-)   a:0.400(+)   b:0.150(-)   g:0.255(+) 
+  sub10 periodic  SMN  d:0.336(-)   t:0.107(-)   a:0.373(-)   b:0.476(-)   g:0.039(+)*
+  sub10 periodic  DMN  d:0.283(+)   t:0.039(-)*  a:0.476(-)   b:0.373(-)   g:0.039(+)*
+  sub10 periodic  LN   d:0.497(+)   t:0.015(-)*  a:0.107(-)   b:0.373(-)   g:0.030(+)*
+  sub12 periodic  SMN  d:0.841(-)   t:0.777(+)   a:0.777(+)   b:0.954(-)   g:0.923(-) 
+  sub12 periodic  DMN  d:0.881(-)   t:0.923(+)   a:0.777(+)   b:0.954(+)   g:0.777(-) 
+  sub12 periodic  LN   d:0.895(-)   t:0.777(+)   a:0.777(+)   b:0.954(-)   g:0.777(-) 
+  sub09 aperiodic SMN  Off:0.438(-)   Exp:0.438(-) 
+  sub09 aperiodic DMN  Off:0.249(-)   Exp:0.162(-) 
+  sub09 aperiodic LN   Off:0.162(-)   Exp:0.162(-) 
+  sub10 aperiodic SMN  Off:0.868(+)   Exp:0.868(+) 
+  sub10 aperiodic DMN  Off:0.868(+)   Exp:0.868(-) 
+  sub10 aperiodic LN   Off:0.868(+)   Exp:0.868(-) 
+  sub12 aperiodic SMN  Off:0.618(-)   Exp:0.618(-) 
+  sub12 aperiodic DMN  Off:0.618(-)   Exp:0.618(-) 
+  sub12 aperiodic LN   Off:0.521(-)   Exp:0.618(-) 
+  SIG sub09:  1  p:g-SMN(+)
+  SIG sub10:  5  p:t-DMN(-), p:t-LN(-), p:g-SMN(+), p:g-DMN(+), p:g-LN(+)
+  SIG sub12:  0  
+
+=== 4. intermediate rest vs segmented music  [rest_mid -> music_segs] ===
+epochs per condition: {'sub07': 36, 'sub09': 44, 'sub10': 23, 'sub12': 39}
+  sub07 periodic  SMN  d:0.364(-)   t:0.001(-)*  a:0.001(-)*  b:0.256(+)   g:0.001(+)*
+  sub07 periodic  DMN  d:0.627(+)   t:0.001(-)*  a:0.001(-)*  b:0.001(-)*  g:0.001(+)*
+  sub07 periodic  LN   d:0.383(+)   t:0.001(-)*  a:0.001(-)*  b:0.001(-)*  g:0.001(+)*
+  sub09 periodic  SMN  d:0.315(+)   t:0.315(+)   a:0.848(-)   b:0.848(+)   g:0.925(-) 
+  sub09 periodic  DMN  d:0.279(-)   t:0.315(+)   a:0.848(+)   b:0.279(+)   g:0.112(-) 
+  sub09 periodic  LN   d:0.848(-)   t:0.240(+)   a:0.758(+)   b:0.315(+)   g:0.060(-) 
+  sub10 periodic  SMN  d:0.865(+)   t:0.865(+)   a:0.957(+)   b:0.970(+)   g:0.957(+) 
+  sub10 periodic  DMN  d:0.957(+)   t:0.195(+)   a:0.865(+)   b:0.957(-)   g:0.957(-) 
+  sub10 periodic  LN   d:0.970(+)   t:0.195(+)   a:0.195(+)   b:0.865(-)   g:0.970(-) 
+  sub12 periodic  SMN  d:0.758(-)   t:0.042(-)*  a:0.002(-)*  b:0.002(-)*  g:0.002(+)*
+  sub12 periodic  DMN  d:0.758(-)   t:0.270(-)   a:0.002(-)*  b:0.004(-)*  g:0.002(+)*
+  sub12 periodic  LN   d:0.860(+)   t:0.327(-)   a:0.002(-)*  b:0.758(-)   g:0.002(+)*
+  sub07 aperiodic SMN  Off:0.517(+)   Exp:0.002(-)*
+  sub07 aperiodic DMN  Off:0.866(+)   Exp:0.002(-)*
+  sub07 aperiodic LN   Off:0.864(-)   Exp:0.002(-)*
+  sub09 aperiodic SMN  Off:0.092(-)   Exp:0.090(-) 
+  sub09 aperiodic DMN  Off:0.272(-)   Exp:0.393(-) 
+  sub09 aperiodic LN   Off:0.090(-)   Exp:0.115(-) 
+  sub10 aperiodic SMN  Off:0.876(-)   Exp:0.635(-) 
+  sub10 aperiodic DMN  Off:0.876(-)   Exp:0.640(-) 
+  sub10 aperiodic LN   Off:0.635(-)   Exp:0.635(-) 
+  sub12 aperiodic SMN  Off:0.147(-)   Exp:0.001(-)*
+  sub12 aperiodic DMN  Off:0.010(-)*  Exp:0.001(-)*
+  sub12 aperiodic LN   Off:0.001(-)*  Exp:0.001(-)*
+  SIG sub07: 14  p:t-SMN(-), p:t-DMN(-), p:t-LN(-), p:a-SMN(-), p:a-DMN(-), p:a-LN(-), p:b-DMN(-), p:b-LN(-), p:g-SMN(+), p:g-DMN(+), p:g-LN(+), a:Exp-SMN(-), a:Exp-DMN(-), a:Exp-LN(-)
+  SIG sub09:  0  
+  SIG sub10:  0  
+  SIG sub12: 14  p:t-SMN(-), p:a-SMN(-), p:a-DMN(-), p:a-LN(-), p:b-SMN(-), p:b-DMN(-), p:g-SMN(+), p:g-DMN(+), p:g-LN(+), a:Off-DMN(-), a:Off-LN(-), a:Exp-SMN(-), a:Exp-DMN(-), a:Exp-LN(-)
+
+=== 5. intermediate rest vs segmented pink noise  [rest_mid -> pink_segs] ===
+epochs per condition: {'sub07': 36, 'sub09': 44, 'sub10': 23, 'sub12': 39}
+  sub07 periodic  SMN  d:0.693(-)   t:0.002(-)*  a:0.002(-)*  b:0.956(+)   g:0.002(+)*
+  sub07 periodic  DMN  d:0.378(+)   t:0.002(-)*  a:0.002(-)*  b:0.129(-)   g:0.002(+)*
+  sub07 periodic  LN   d:0.378(+)   t:0.002(-)*  a:0.002(-)*  b:0.004(-)*  g:0.002(+)*
+  sub09 periodic  SMN  d:0.762(+)   t:0.938(+)   a:0.899(+)   b:0.899(+)   g:0.762(-) 
+  sub09 periodic  DMN  d:0.762(-)   t:0.762(-)   a:0.762(+)   b:0.633(+)   g:0.633(-) 
+  sub09 periodic  LN   d:0.762(+)   t:0.762(+)   a:0.762(+)   b:0.633(+)   g:0.300(-) 
+  sub10 periodic  SMN  d:0.007(+)*  t:0.405(-)   a:0.339(-)   b:0.287(-)   g:0.339(+) 
+  sub10 periodic  DMN  d:0.007(+)*  t:0.339(-)   a:0.339(-)   b:0.030(-)*  g:0.425(+) 
+  sub10 periodic  LN   d:0.030(+)*  t:0.382(-)   a:0.857(-)   b:0.030(-)*  g:0.339(+) 
+  sub12 periodic  SMN  d:0.612(-)   t:0.057(-)   a:0.002(-)*  b:0.002(-)*  g:0.002(+)*
+  sub12 periodic  DMN  d:0.612(-)   t:0.213(-)   a:0.002(-)*  b:0.011(-)*  g:0.002(+)*
+  sub12 periodic  LN   d:0.849(-)   t:0.213(-)   a:0.002(-)*  b:0.271(-)   g:0.002(+)*
+  sub07 aperiodic SMN  Off:0.184(+)   Exp:0.002(-)*
+  sub07 aperiodic DMN  Off:0.821(+)   Exp:0.002(-)*
+  sub07 aperiodic LN   Off:0.474(+)   Exp:0.002(-)*
+  sub09 aperiodic SMN  Off:0.969(-)   Exp:0.969(+) 
+  sub09 aperiodic DMN  Off:0.782(+)   Exp:0.264(+) 
+  sub09 aperiodic LN   Off:0.969(-)   Exp:0.863(+) 
+  sub10 aperiodic SMN  Off:0.924(+)   Exp:0.924(-) 
+  sub10 aperiodic DMN  Off:0.924(+)   Exp:0.924(+) 
+  sub10 aperiodic LN   Off:0.924(+)   Exp:0.924(-) 
+  sub12 aperiodic SMN  Off:0.105(-)   Exp:0.002(-)*
+  sub12 aperiodic DMN  Off:0.037(-)*  Exp:0.002(-)*
+  sub12 aperiodic LN   Off:0.013(-)*  Exp:0.002(-)*
+  SIG sub07: 13  p:t-SMN(-), p:t-DMN(-), p:t-LN(-), p:a-SMN(-), p:a-DMN(-), p:a-LN(-), p:b-LN(-), p:g-SMN(+), p:g-DMN(+), p:g-LN(+), a:Exp-SMN(-), a:Exp-DMN(-), a:Exp-LN(-)
+  SIG sub09:  0  
+  SIG sub10:  5  p:d-SMN(+), p:d-DMN(+), p:d-LN(+), p:b-DMN(-), p:b-LN(-)
+  SIG sub12: 13  p:a-SMN(-), p:a-DMN(-), p:a-LN(-), p:b-SMN(-), p:b-DMN(-), p:g-SMN(+), p:g-DMN(+), p:g-LN(+), a:Off-DMN(-), a:Off-LN(-), a:Exp-SMN(-), a:Exp-DMN(-), a:Exp-LN(-)
+
+=== 6. SPLIT music half1 vs half2  [half1 -> half2] ===
+epochs per condition: {'sub01': 40, 'sub03': 38, 'sub04': 17, 'sub07': 36, 'sub09': 33, 'sub10': 21, 'sub12': 26}
+  sub01 periodic  SMN  d:0.486(+)   t:0.706(-)   a:0.423(-)   b:0.747(-)   g:0.486(+) 
+  sub01 periodic  DMN  d:0.486(+)   t:0.602(-)   a:0.275(-)   b:0.566(-)   g:0.566(+) 
+  sub01 periodic  LN   d:0.706(+)   t:0.706(+)   a:0.275(-)   b:0.566(-)   g:0.275(+) 
+  sub03 periodic  SMN  d:0.858(-)   t:0.999(+)   a:0.873(-)   b:0.814(-)   g:0.858(-) 
+  sub03 periodic  DMN  d:0.832(-)   t:0.832(-)   a:0.832(-)   b:0.832(+)   g:0.814(+) 
+  sub03 periodic  LN   d:0.995(+)   t:0.832(-)   a:0.814(-)   b:0.832(-)   g:0.832(+) 
+  sub04 periodic  SMN  d:0.303(+)   t:0.935(+)   a:0.698(-)   b:0.255(-)   g:0.698(+) 
+  sub04 periodic  DMN  d:0.743(+)   t:0.935(+)   a:0.743(-)   b:0.255(-)   g:0.698(+) 
+  sub04 periodic  LN   d:0.743(+)   t:0.935(+)   a:0.743(-)   b:0.303(-)   g:0.743(+) 
+  sub07 periodic  SMN  d:0.060(+)   t:0.294(+)   a:0.752(+)   b:0.294(-)   g:0.294(-) 
+  sub07 periodic  DMN  d:0.836(+)   t:0.958(+)   a:0.958(-)   b:0.456(-)   g:0.060(+) 
+  sub07 periodic  LN   d:0.456(+)   t:0.753(-)   a:0.752(+)   b:0.456(-)   g:0.315(+) 
+  sub09 periodic  SMN  d:0.863(+)   t:0.582(+)   a:0.863(+)   b:0.981(+)   g:0.495(-) 
+  sub09 periodic  DMN  d:0.622(+)   t:0.495(+)   a:0.582(-)   b:0.582(-)   g:0.582(+) 
+  sub09 periodic  LN   d:0.582(+)   t:0.495(+)   a:0.495(-)   b:0.582(-)   g:0.582(+) 
+  sub10 periodic  SMN  d:0.924(-)   t:0.033(+)*  a:0.033(+)*  b:0.056(+)   g:0.441(-) 
+  sub10 periodic  DMN  d:0.441(-)   t:0.441(+)   a:0.033(+)*  b:0.033(+)*  g:0.062(-) 
+  sub10 periodic  LN   d:0.231(-)   t:0.432(+)   a:0.033(+)*  b:0.098(+)   g:0.050(-)*
+  sub12 periodic  SMN  d:0.548(-)   t:0.548(+)   a:0.548(+)   b:0.537(+)   g:0.015(-)*
+  sub12 periodic  DMN  d:0.548(-)   t:0.548(+)   a:0.548(+)   b:0.150(+)   g:0.015(-)*
+  sub12 periodic  LN   d:0.548(-)   t:0.537(+)   a:0.691(+)   b:0.953(+)   g:0.030(-)*
+  sub01 aperiodic SMN  Off:0.338(+)   Exp:0.338(+) 
+  sub01 aperiodic DMN  Off:0.591(+)   Exp:0.921(-) 
+  sub01 aperiodic LN   Off:0.591(-)   Exp:0.338(-) 
+  sub03 aperiodic SMN  Off:0.048(-)*  Exp:0.048(-)*
+  sub03 aperiodic DMN  Off:0.112(-)   Exp:0.112(-) 
+  sub03 aperiodic LN   Off:0.126(-)   Exp:0.113(-) 
+  sub04 aperiodic SMN  Off:0.018(+)*  Exp:0.154(+) 
+  sub04 aperiodic DMN  Off:0.018(+)*  Exp:0.070(+) 
+  sub04 aperiodic LN   Off:0.018(+)*  Exp:0.069(+) 
+  sub07 aperiodic SMN  Off:0.001(+)*  Exp:0.001(+)*
+  sub07 aperiodic DMN  Off:0.001(+)*  Exp:0.001(+)*
+  sub07 aperiodic LN   Off:0.011(+)*  Exp:0.005(+)*
+  sub09 aperiodic SMN  Off:0.452(-)   Exp:0.042(-)*
+  sub09 aperiodic DMN  Off:0.576(-)   Exp:0.192(-) 
+  sub09 aperiodic LN   Off:0.452(-)   Exp:0.117(-) 
+  sub10 aperiodic SMN  Off:0.962(+)   Exp:0.962(+) 
+  sub10 aperiodic DMN  Off:0.962(-)   Exp:0.962(+) 
+  sub10 aperiodic LN   Off:0.962(-)   Exp:0.962(+) 
+  sub12 aperiodic SMN  Off:0.821(-)   Exp:0.821(-) 
+  sub12 aperiodic DMN  Off:0.821(-)   Exp:0.821(-) 
+  sub12 aperiodic LN   Off:0.821(+)   Exp:0.821(+) 
+  SIG sub01:  0  
+  SIG sub03:  2  a:Off-SMN(-), a:Exp-SMN(-)
+  SIG sub04:  3  a:Off-SMN(+), a:Off-DMN(+), a:Off-LN(+)
+  SIG sub07:  6  a:Off-SMN(+), a:Off-DMN(+), a:Off-LN(+), a:Exp-SMN(+), a:Exp-DMN(+), a:Exp-LN(+)
+  SIG sub09:  1  a:Exp-SMN(-)
+  SIG sub10:  6  p:t-SMN(+), p:a-SMN(+), p:a-DMN(+), p:a-LN(+), p:b-DMN(+), p:g-LN(-)
+  SIG sub12:  3  p:g-SMN(-), p:g-DMN(-), p:g-LN(-)
+
+=== 7. SPLIT rest half1 vs half2  [half1 -> half2] ===
+epochs per condition: {'sub01': 40, 'sub03': 38, 'sub04': 17, 'sub07': 36, 'sub09': 44, 'sub10': 24, 'sub12': 35}
+  sub01 periodic  SMN  d:0.916(-)   t:0.916(-)   a:0.916(+)   b:0.916(+)   g:0.916(-) 
+  sub01 periodic  DMN  d:0.916(-)   t:0.916(+)   a:0.916(-)   b:0.916(+)   g:0.916(-) 
+  sub01 periodic  LN   d:0.916(-)   t:0.916(+)   a:0.916(-)   b:0.924(-)   g:0.916(+) 
+  sub03 periodic  SMN  d:0.030(+)*  t:0.036(+)*  a:0.015(-)*  b:0.852(+)   g:0.282(+) 
+  sub03 periodic  DMN  d:0.015(+)*  t:0.049(+)*  a:0.015(-)*  b:0.271(+)   g:0.282(+) 
+  sub03 periodic  LN   d:0.049(+)*  t:0.123(+)   a:0.123(-)   b:0.253(+)   g:0.924(-) 
+  sub04 periodic  SMN  d:0.606(-)   t:0.606(-)   a:0.929(-)   b:0.606(+)   g:0.606(-) 
+  sub04 periodic  DMN  d:0.606(-)   t:0.646(+)   a:0.825(-)   b:0.606(+)   g:0.606(-) 
+  sub04 periodic  LN   d:0.606(-)   t:0.606(-)   a:0.825(-)   b:0.606(+)   g:0.606(-) 
+  sub07 periodic  SMN  d:0.226(+)   t:0.179(+)   a:0.179(+)   b:0.179(-)   g:0.010(-)*
+  sub07 periodic  DMN  d:0.376(-)   t:0.179(+)   a:0.082(+)   b:0.082(+)   g:0.007(-)*
+  sub07 periodic  LN   d:0.218(-)   t:0.139(+)   a:0.015(+)*  b:0.179(+)   g:0.007(-)*
+  sub09 periodic  SMN  d:0.723(+)   t:0.723(+)   a:0.723(+)   b:0.723(+)   g:0.973(+) 
+  sub09 periodic  DMN  d:0.973(+)   t:0.899(+)   a:0.719(+)   b:0.517(+)   g:0.517(-) 
+  sub09 periodic  LN   d:0.899(-)   t:0.723(+)   a:0.517(+)   b:0.719(+)   g:0.517(-) 
+  sub10 periodic  SMN  d:0.905(+)   t:0.935(-)   a:0.869(+)   b:0.694(+)   g:0.869(-) 
+  sub10 periodic  DMN  d:0.935(+)   t:0.961(+)   a:0.694(+)   b:0.935(+)   g:0.935(-) 
+  sub10 periodic  LN   d:0.935(+)   t:0.869(-)   a:0.644(+)   b:0.935(+)   g:0.869(-) 
+  sub12 periodic  SMN  d:0.310(+)   t:0.641(+)   a:0.554(+)   b:0.835(+)   g:0.112(-) 
+  sub12 periodic  DMN  d:0.835(-)   t:0.797(+)   a:0.258(+)   b:0.030(+)*  g:0.030(-)*
+  sub12 periodic  LN   d:0.641(+)   t:0.641(+)   a:0.641(+)   b:0.310(+)   g:0.112(-) 
+  sub01 aperiodic SMN  Off:0.938(+)   Exp:0.938(+) 
+  sub01 aperiodic DMN  Off:0.938(-)   Exp:0.938(-) 
+  sub01 aperiodic LN   Off:0.938(+)   Exp:0.938(+) 
+  sub03 aperiodic SMN  Off:0.970(+)   Exp:0.970(+) 
+  sub03 aperiodic DMN  Off:0.970(+)   Exp:0.970(-) 
+  sub03 aperiodic LN   Off:0.970(+)   Exp:0.970(-) 
+  sub04 aperiodic SMN  Off:0.998(-)   Exp:0.998(+) 
+  sub04 aperiodic DMN  Off:0.998(+)   Exp:0.998(+) 
+  sub04 aperiodic LN   Off:0.998(+)   Exp:0.998(+) 
+  sub07 aperiodic SMN  Off:0.763(+)   Exp:0.068(+) 
+  sub07 aperiodic DMN  Off:0.269(+)   Exp:0.024(+)*
+  sub07 aperiodic LN   Off:0.210(+)   Exp:0.012(+)*
+  sub09 aperiodic SMN  Off:0.072(-)   Exp:0.345(-) 
+  sub09 aperiodic DMN  Off:0.042(-)*  Exp:0.063(-) 
+  sub09 aperiodic LN   Off:0.042(-)*  Exp:0.042(-)*
+  sub10 aperiodic SMN  Off:0.132(+)   Exp:0.094(+) 
+  sub10 aperiodic DMN  Off:0.019(+)*  Exp:0.019(+)*
+  sub10 aperiodic LN   Off:0.019(+)*  Exp:0.019(+)*
+  sub12 aperiodic SMN  Off:0.013(+)*  Exp:0.001(+)*
+  sub12 aperiodic DMN  Off:0.001(+)*  Exp:0.001(+)*
+  sub12 aperiodic LN   Off:0.001(+)*  Exp:0.001(+)*
+  SIG sub01:  0  
+  SIG sub03:  7  p:d-SMN(+), p:d-DMN(+), p:d-LN(+), p:t-SMN(+), p:t-DMN(+), p:a-SMN(-), p:a-DMN(-)
+  SIG sub04:  0  
+  SIG sub07:  6  p:a-LN(+), p:g-SMN(-), p:g-DMN(-), p:g-LN(-), a:Exp-DMN(+), a:Exp-LN(+)
+  SIG sub09:  3  a:Off-DMN(-), a:Off-LN(-), a:Exp-LN(-)
+  SIG sub10:  4  a:Off-DMN(+), a:Off-LN(+), a:Exp-DMN(+), a:Exp-LN(+)
+  SIG sub12:  8  p:b-DMN(+), p:g-DMN(-), a:Off-SMN(+), a:Off-DMN(+), a:Off-LN(+), a:Exp-SMN(+), a:Exp-DMN(+), a:Exp-LN(+)
+
+=== 8. rest vs music (N = rest half)  [rest_init -> reward] ===
+epochs per condition: {'sub01': 40, 'sub03': 38, 'sub04': 17, 'sub07': 36, 'sub09': 44, 'sub10': 24, 'sub12': 35}
+  sub01 periodic  SMN  d:0.002(-)*  t:0.022(-)*  a:0.002(+)*  b:0.002(+)*  g:0.144(-) 
+  sub01 periodic  DMN  d:0.018(-)*  t:0.871(-)   a:0.017(+)*  b:0.002(+)*  g:0.002(-)*
+  sub01 periodic  LN   d:0.979(-)   t:0.438(-)   a:0.002(+)*  b:0.002(+)*  g:0.002(-)*
+  sub03 periodic  SMN  d:0.124(-)   t:0.002(+)*  a:0.002(+)*  b:0.031(-)*  g:0.002(-)*
+  sub03 periodic  DMN  d:0.635(+)   t:0.002(+)*  a:0.002(+)*  b:0.635(+)   g:0.002(-)*
+  sub03 periodic  LN   d:0.380(-)   t:0.002(+)*  a:0.002(+)*  b:0.013(-)*  g:0.002(-)*
+  sub04 periodic  SMN  d:0.039(-)*  t:0.456(+)   a:0.039(+)*  b:0.039(+)*  g:0.817(-) 
+  sub04 periodic  DMN  d:0.083(-)   t:0.634(+)   a:0.039(+)*  b:0.037(+)*  g:0.175(-) 
+  sub04 periodic  LN   d:0.039(-)*  t:0.748(-)   a:0.037(+)*  b:0.073(+)   g:0.597(-) 
+  sub07 periodic  SMN  d:0.581(+)   t:0.001(+)*  a:0.001(+)*  b:0.062(+)   g:0.001(-)*
+  sub07 periodic  DMN  d:0.687(-)   t:0.001(+)*  a:0.001(+)*  b:0.001(+)*  g:0.001(-)*
+  sub07 periodic  LN   d:0.171(-)   t:0.001(+)*  a:0.001(+)*  b:0.001(+)*  g:0.001(-)*
+  sub09 periodic  SMN  d:0.001(+)*  t:0.001(-)*  a:0.001(-)*  b:0.001(-)*  g:0.001(+)*
+  sub09 periodic  DMN  d:0.001(+)*  t:0.001(-)*  a:0.001(-)*  b:0.001(-)*  g:0.001(+)*
+  sub09 periodic  LN   d:0.001(+)*  t:0.001(-)*  a:0.001(-)*  b:0.001(-)*  g:0.001(+)*
+  sub10 periodic  SMN  d:0.873(-)   t:0.873(-)   a:0.873(-)   b:0.873(-)   g:0.554(+) 
+  sub10 periodic  DMN  d:0.873(+)   t:0.873(+)   a:0.873(-)   b:0.873(-)   g:0.554(+) 
+  sub10 periodic  LN   d:0.906(+)   t:0.873(-)   a:0.873(+)   b:0.980(+)   g:0.679(+) 
+  sub12 periodic  SMN  d:0.369(-)   t:0.621(-)   a:0.003(+)*  b:0.047(+)*  g:0.003(-)*
+  sub12 periodic  DMN  d:0.386(-)   t:0.621(-)   a:0.003(+)*  b:0.004(+)*  g:0.003(-)*
+  sub12 periodic  LN   d:0.621(-)   t:0.767(+)   a:0.004(+)*  b:0.013(+)*  g:0.003(-)*
+  sub01 aperiodic SMN  Off:0.130(+)   Exp:0.104(+) 
+  sub01 aperiodic DMN  Off:0.787(-)   Exp:0.003(+)*
+  sub01 aperiodic LN   Off:0.180(+)   Exp:0.003(+)*
+  sub03 aperiodic SMN  Off:0.001(+)*  Exp:0.001(+)*
+  sub03 aperiodic DMN  Off:0.001(+)*  Exp:0.001(+)*
+  sub03 aperiodic LN   Off:0.001(+)*  Exp:0.001(+)*
+  sub04 aperiodic SMN  Off:0.581(-)   Exp:0.581(+) 
+  sub04 aperiodic DMN  Off:0.581(-)   Exp:0.581(+) 
+  sub04 aperiodic LN   Off:0.980(-)   Exp:0.581(+) 
+  sub07 aperiodic SMN  Off:0.870(+)   Exp:0.003(+)*
+  sub07 aperiodic DMN  Off:0.870(-)   Exp:0.008(+)*
+  sub07 aperiodic LN   Off:0.870(+)   Exp:0.003(+)*
+  sub09 aperiodic SMN  Off:0.913(-)   Exp:0.012(-)*
+  sub09 aperiodic DMN  Off:0.977(+)   Exp:0.018(-)*
+  sub09 aperiodic LN   Off:0.626(-)   Exp:0.006(-)*
+  sub10 aperiodic SMN  Off:0.457(+)   Exp:0.457(+) 
+  sub10 aperiodic DMN  Off:0.426(+)   Exp:0.438(+) 
+  sub10 aperiodic LN   Off:0.457(+)   Exp:0.457(+) 
+  sub12 aperiodic SMN  Off:0.018(+)*  Exp:0.001(+)*
+  sub12 aperiodic DMN  Off:0.001(+)*  Exp:0.001(+)*
+  sub12 aperiodic LN   Off:0.001(+)*  Exp:0.001(+)*
+  SIG sub01: 13  p:d-SMN(-), p:d-DMN(-), p:t-SMN(-), p:a-SMN(+), p:a-DMN(+), p:a-LN(+), p:b-SMN(+), p:b-DMN(+), p:b-LN(+), p:g-DMN(-), p:g-LN(-), a:Exp-DMN(+), a:Exp-LN(+)
+  SIG sub03: 17  p:t-SMN(+), p:t-DMN(+), p:t-LN(+), p:a-SMN(+), p:a-DMN(+), p:a-LN(+), p:b-SMN(-), p:b-LN(-), p:g-SMN(-), p:g-DMN(-), p:g-LN(-), a:Off-SMN(+), a:Off-DMN(+), a:Off-LN(+), a:Exp-SMN(+), a:Exp-DMN(+), a:Exp-LN(+)
+  SIG sub04:  7  p:d-SMN(-), p:d-LN(-), p:a-SMN(+), p:a-DMN(+), p:a-LN(+), p:b-SMN(+), p:b-DMN(+)
+  SIG sub07: 14  p:t-SMN(+), p:t-DMN(+), p:t-LN(+), p:a-SMN(+), p:a-DMN(+), p:a-LN(+), p:b-DMN(+), p:b-LN(+), p:g-SMN(-), p:g-DMN(-), p:g-LN(-), a:Exp-SMN(+), a:Exp-DMN(+), a:Exp-LN(+)
+  SIG sub09: 18  p:d-SMN(+), p:d-DMN(+), p:d-LN(+), p:t-SMN(-), p:t-DMN(-), p:t-LN(-), p:a-SMN(-), p:a-DMN(-), p:a-LN(-), p:b-SMN(-), p:b-DMN(-), p:b-LN(-), p:g-SMN(+), p:g-DMN(+), p:g-LN(+), a:Exp-SMN(-), a:Exp-DMN(-), a:Exp-LN(-)
+  SIG sub10:  0  
+  SIG sub12: 15  p:a-SMN(+), p:a-DMN(+), p:a-LN(+), p:b-SMN(+), p:b-DMN(+), p:b-LN(+), p:g-SMN(-), p:g-DMN(-), p:g-LN(-), a:Off-SMN(+), a:Off-DMN(+), a:Off-LN(+), a:Exp-SMN(+), a:Exp-DMN(+), a:Exp-LN(+)

@@ -1,0 +1,122 @@
+CHANNEL-LEVEL RESULTS SUMMARY (significant channels of 128, FDR per subject; sign = epoch-mean(condition2) - epoch-mean(condition1))
+
+=== 1. initial rest vs continuous music (full N)  [rest_init -> reward] ===
+epochs per condition: {'sub01': 80, 'sub03': 77, 'sub04': 35, 'sub07': 73, 'sub09': 67, 'sub10': 43, 'sub12': 53}
+  sub01  delta:  1(+0/-1)  theta:  9(+0/-9)  alpha:  6(+5/-1)  beta: 11(+10/-1)  gamma:  8(+1/-7)
+  sub01  Offse: 39(+36/-3)  Expon: 18(+18/-0)
+  sub03  delta: 21(+0/-21)  theta: 66(+66/-0)  alpha: 87(+83/-4)  beta: 18(+12/-6)  gamma: 35(+0/-35)
+  sub03  Offse: 92(+91/-1)  Expon:123(+123/-0)
+  sub04  delta:  0(+0/-0)  theta:  0(+0/-0)  alpha:  3(+3/-0)  beta:  0(+0/-0)  gamma:  0(+0/-0)
+  sub04  Offse:  0(+0/-0)  Expon: 11(+11/-0)
+  sub07  delta:  1(+0/-1)  theta: 49(+49/-0)  alpha: 45(+38/-7)  beta: 21(+12/-9)  gamma: 44(+0/-44)
+  sub07  Offse:  3(+3/-0)  Expon: 11(+11/-0)
+  sub09  delta: 38(+38/-0)  theta: 62(+0/-62)  alpha: 45(+0/-45)  beta:117(+0/-117)  gamma:116(+116/-0)
+  sub09  Offse: 10(+10/-0)  Expon: 12(+2/-10)
+  sub10  delta:  0(+0/-0)  theta:  0(+0/-0)  alpha:  0(+0/-0)  beta:  0(+0/-0)  gamma:  0(+0/-0)
+  sub10  Offse:  0(+0/-0)  Expon:  0(+0/-0)
+  sub12  delta:  0(+0/-0)  theta:  0(+0/-0)  alpha: 25(+25/-0)  beta: 21(+21/-0)  gamma: 27(+0/-27)
+  sub12  Offse: 47(+46/-1)  Expon: 43(+43/-0)
+
+=== 2. segmented pink noise vs segmented music  [pink_segs -> music_segs] ===
+epochs per condition: {'sub07': 125, 'sub09': 93, 'sub10': 35, 'sub12': 82}
+  sub07  delta:  0(+0/-0)  theta:  0(+0/-0)  alpha:  0(+0/-0)  beta:  0(+0/-0)  gamma:  0(+0/-0)
+  sub07  Offse:  0(+0/-0)  Expon:  0(+0/-0)
+  sub09  delta:  0(+0/-0)  theta:  0(+0/-0)  alpha:  0(+0/-0)  beta:  0(+0/-0)  gamma:  0(+0/-0)
+  sub09  Offse:  0(+0/-0)  Expon:  0(+0/-0)
+  sub10  delta: 10(+0/-10)  theta:  0(+0/-0)  alpha:  7(+7/-0)  beta:  0(+0/-0)  gamma:  0(+0/-0)
+  sub10  Offse:  0(+0/-0)  Expon:  0(+0/-0)
+  sub12  delta:  0(+0/-0)  theta:  0(+0/-0)  alpha:  0(+0/-0)  beta:  0(+0/-0)  gamma:  0(+0/-0)
+  sub12  Offse:  0(+0/-0)  Expon:  0(+0/-0)
+
+=== 3. continuous pink noise vs continuous music  [pink_noise -> reward] ===
+epochs per condition: {'sub09': 51, 'sub10': 36, 'sub12': 53}
+  sub09  delta:  0(+0/-0)  theta:  0(+0/-0)  alpha:  0(+0/-0)  beta:  0(+0/-0)  gamma:  0(+0/-0)
+  sub09  Offse:  0(+0/-0)  Expon:  0(+0/-0)
+  sub10  delta:  0(+0/-0)  theta:  0(+0/-0)  alpha:  0(+0/-0)  beta:  0(+0/-0)  gamma:  0(+0/-0)
+  sub10  Offse:  0(+0/-0)  Expon:  0(+0/-0)
+  sub12  delta:  0(+0/-0)  theta:  0(+0/-0)  alpha:  0(+0/-0)  beta:  0(+0/-0)  gamma:  0(+0/-0)
+  sub12  Offse:  0(+0/-0)  Expon:  0(+0/-0)
+
+=== 4. intermediate rest vs segmented music  [rest_mid -> music_segs] ===
+epochs per condition: {'sub07': 36, 'sub09': 44, 'sub10': 23, 'sub12': 39}
+  sub07  delta:  0(+0/-0)  theta:  5(+0/-5)  alpha: 14(+1/-13)  beta:  7(+2/-5)  gamma: 14(+12/-2)
+  sub07  Offse:  2(+2/-0)  Expon: 19(+3/-16)
+  sub09  delta:  0(+0/-0)  theta:  0(+0/-0)  alpha:  0(+0/-0)  beta:  0(+0/-0)  gamma:  1(+0/-1)
+  sub09  Offse:  5(+0/-5)  Expon:  8(+0/-8)
+  sub10  delta:  0(+0/-0)  theta:  0(+0/-0)  alpha:  0(+0/-0)  beta:  0(+0/-0)  gamma:  0(+0/-0)
+  sub10  Offse:  0(+0/-0)  Expon:  0(+0/-0)
+  sub12  delta:  1(+0/-1)  theta:  1(+0/-1)  alpha: 13(+0/-13)  beta: 13(+0/-13)  gamma: 25(+25/-0)
+  sub12  Offse:  0(+0/-0)  Expon:  4(+0/-4)
+
+=== 5. intermediate rest vs segmented pink noise  [rest_mid -> pink_segs] ===
+epochs per condition: {'sub07': 36, 'sub09': 44, 'sub10': 23, 'sub12': 39}
+  sub07  delta:  0(+0/-0)  theta: 12(+0/-12)  alpha: 22(+8/-14)  beta:  7(+3/-4)  gamma: 25(+16/-9)
+  sub07  Offse:  2(+2/-0)  Expon: 16(+1/-15)
+  sub09  delta:  0(+0/-0)  theta:  0(+0/-0)  alpha:  0(+0/-0)  beta:  0(+0/-0)  gamma:  0(+0/-0)
+  sub09  Offse:  0(+0/-0)  Expon:  0(+0/-0)
+  sub10  delta:  0(+0/-0)  theta:  0(+0/-0)  alpha:  0(+0/-0)  beta:  0(+0/-0)  gamma:  0(+0/-0)
+  sub10  Offse:  0(+0/-0)  Expon:  0(+0/-0)
+  sub12  delta:  3(+0/-3)  theta:  0(+0/-0)  alpha: 17(+0/-17)  beta: 12(+0/-12)  gamma: 51(+51/-0)
+  sub12  Offse:  0(+0/-0)  Expon:  5(+1/-4)
+
+=== 6. intermediate rest vs continuous music  [rest_mid -> reward] ===
+epochs per condition: {'sub07': 36, 'sub09': 44, 'sub10': 23, 'sub12': 39}
+  sub07  delta:  0(+0/-0)  theta:  0(+0/-0)  alpha:  0(+0/-0)  beta:  0(+0/-0)  gamma:  0(+0/-0)
+  sub07  Offse:  5(+0/-5)  Expon: 23(+0/-23)
+  sub09  delta:  9(+9/-0)  theta:  2(+0/-2)  alpha: 20(+0/-20)  beta: 28(+0/-28)  gamma: 37(+37/-0)
+  sub09  Offse:  9(+9/-0)  Expon:  8(+8/-0)
+  sub10  delta:  0(+0/-0)  theta:  0(+0/-0)  alpha:  0(+0/-0)  beta:  0(+0/-0)  gamma:  0(+0/-0)
+  sub10  Offse:  0(+0/-0)  Expon:  0(+0/-0)
+  sub12  delta:  0(+0/-0)  theta:  0(+0/-0)  alpha:  0(+0/-0)  beta:  0(+0/-0)  gamma:  1(+0/-1)
+  sub12  Offse:  7(+7/-0)  Expon: 28(+27/-1)
+
+=== 7. SPLIT music half1 vs half2  [half1 -> half2] ===
+epochs per condition: {'sub01': 40, 'sub03': 38, 'sub04': 17, 'sub07': 36, 'sub09': 33, 'sub10': 21, 'sub12': 26}
+  sub01  delta:  0(+0/-0)  theta:  0(+0/-0)  alpha:  0(+0/-0)  beta:  0(+0/-0)  gamma:  0(+0/-0)
+  sub01  Offse:  0(+0/-0)  Expon:  0(+0/-0)
+  sub03  delta:  0(+0/-0)  theta:  0(+0/-0)  alpha:  0(+0/-0)  beta:  0(+0/-0)  gamma:  0(+0/-0)
+  sub03  Offse:  0(+0/-0)  Expon:  0(+0/-0)
+  sub04  delta:  0(+0/-0)  theta:  0(+0/-0)  alpha:  0(+0/-0)  beta:  0(+0/-0)  gamma:  0(+0/-0)
+  sub04  Offse:  1(+1/-0)  Expon:  0(+0/-0)
+  sub07  delta:  0(+0/-0)  theta:  0(+0/-0)  alpha:  0(+0/-0)  beta:  0(+0/-0)  gamma:  0(+0/-0)
+  sub07  Offse:  0(+0/-0)  Expon:  0(+0/-0)
+  sub09  delta:  0(+0/-0)  theta:  0(+0/-0)  alpha:  0(+0/-0)  beta:  0(+0/-0)  gamma:  0(+0/-0)
+  sub09  Offse:  0(+0/-0)  Expon:  0(+0/-0)
+  sub10  delta:  0(+0/-0)  theta:  0(+0/-0)  alpha:  0(+0/-0)  beta:  0(+0/-0)  gamma:  0(+0/-0)
+  sub10  Offse:  0(+0/-0)  Expon:  0(+0/-0)
+  sub12  delta:  0(+0/-0)  theta:  0(+0/-0)  alpha:  0(+0/-0)  beta:  0(+0/-0)  gamma:  1(+0/-1)
+  sub12  Offse:  0(+0/-0)  Expon:  0(+0/-0)
+
+=== 8. SPLIT rest half1 vs half2  [half1 -> half2] ===
+epochs per condition: {'sub01': 40, 'sub03': 38, 'sub04': 17, 'sub07': 36, 'sub09': 44, 'sub10': 24, 'sub12': 35}
+  sub01  delta:  0(+0/-0)  theta:  0(+0/-0)  alpha:  0(+0/-0)  beta:  0(+0/-0)  gamma:  0(+0/-0)
+  sub01  Offse:  0(+0/-0)  Expon:  0(+0/-0)
+  sub03  delta:  5(+5/-0)  theta:  0(+0/-0)  alpha: 46(+0/-46)  beta:  1(+1/-0)  gamma:  3(+3/-0)
+  sub03  Offse:  0(+0/-0)  Expon:  0(+0/-0)
+  sub04  delta:  0(+0/-0)  theta:  0(+0/-0)  alpha:  0(+0/-0)  beta:  0(+0/-0)  gamma:  0(+0/-0)
+  sub04  Offse:  0(+0/-0)  Expon:  0(+0/-0)
+  sub07  delta:  0(+0/-0)  theta:  0(+0/-0)  alpha:  0(+0/-0)  beta:  0(+0/-0)  gamma:  0(+0/-0)
+  sub07  Offse:  0(+0/-0)  Expon:  0(+0/-0)
+  sub09  delta:  0(+0/-0)  theta:  0(+0/-0)  alpha:  0(+0/-0)  beta:  0(+0/-0)  gamma:  0(+0/-0)
+  sub09  Offse:  4(+0/-4)  Expon:  4(+0/-4)
+  sub10  delta:  0(+0/-0)  theta:  0(+0/-0)  alpha:  0(+0/-0)  beta:  0(+0/-0)  gamma:  0(+0/-0)
+  sub10  Offse:  0(+0/-0)  Expon:  0(+0/-0)
+  sub12  delta:  0(+0/-0)  theta:  1(+1/-0)  alpha:  3(+3/-0)  beta:  0(+0/-0)  gamma:  5(+0/-5)
+  sub12  Offse:  1(+1/-0)  Expon: 33(+33/-0)
+
+=== 9. rest vs music (N = rest half)  [rest_init -> reward] ===
+epochs per condition: {'sub01': 40, 'sub03': 38, 'sub04': 17, 'sub07': 36, 'sub09': 44, 'sub10': 24, 'sub12': 35}
+  sub01  delta:  0(+0/-0)  theta:  1(+0/-1)  alpha:  0(+0/-0)  beta:  4(+4/-0)  gamma:  3(+1/-2)
+  sub01  Offse: 19(+17/-2)  Expon:  9(+9/-0)
+  sub03  delta:  4(+0/-4)  theta: 21(+21/-0)  alpha: 25(+23/-2)  beta: 10(+6/-4)  gamma:  8(+0/-8)
+  sub03  Offse: 95(+94/-1)  Expon:115(+115/-0)
+  sub04  delta:  0(+0/-0)  theta:  0(+0/-0)  alpha:  0(+0/-0)  beta:  0(+0/-0)  gamma:  0(+0/-0)
+  sub04  Offse:  0(+0/-0)  Expon:  0(+0/-0)
+  sub07  delta:  1(+0/-1)  theta: 25(+25/-0)  alpha: 25(+21/-4)  beta: 14(+8/-6)  gamma: 37(+0/-37)
+  sub07  Offse:  0(+0/-0)  Expon:  1(+1/-0)
+  sub09  delta: 27(+27/-0)  theta: 26(+0/-26)  alpha: 18(+0/-18)  beta: 94(+0/-94)  gamma: 89(+89/-0)
+  sub09  Offse:  1(+1/-0)  Expon:  3(+1/-2)
+  sub10  delta:  0(+0/-0)  theta:  0(+0/-0)  alpha:  0(+0/-0)  beta:  0(+0/-0)  gamma:  0(+0/-0)
+  sub10  Offse:  0(+0/-0)  Expon:  0(+0/-0)
+  sub12  delta:  0(+0/-0)  theta:  0(+0/-0)  alpha:  9(+9/-0)  beta: 14(+14/-0)  gamma: 23(+0/-23)
+  sub12  Offse: 39(+39/-0)  Expon: 56(+55/-1)

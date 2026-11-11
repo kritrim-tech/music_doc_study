@@ -13,7 +13,10 @@ def compute_psd_mne(data, band_ranges, overlap, segment_size, f_min, f_max, powe
     picks_eeg = mne.pick_types(data.info, eeg=True)
     # print("Segment Size: ", segment_size)
     # print("Overlap: ", overlap)
-    psd_data = data.compute_psd(method='welch', fmin=f_min, fmax=f_max, picks=picks_eeg, n_per_seg=segment_size, n_fft=segment_size, n_overlap=overlap, average=False)
+    # psd_data = data.compute_psd(method='welch', fmin=f_min, fmax=f_max, picks=picks_eeg, n_per_seg=segment_size, n_fft=segment_size, n_overlap=overlap, average=False)
+    psd_data = data.compute_psd(method='welch', fmin=f_min, fmax=f_max, picks=picks_eeg,
+                            n_per_seg=segment_size, n_fft=segment_size, n_overlap=overlap,
+                            window="hann", average=False)
     psd, freqs = psd_data.get_data(return_freqs=True)
 
     # psd = 10 * np.log10(psd) # Added on 9/1/2026 Actuallly, not needed since fooof requires non logged data and also when we look at the difference between 2 conditions the significance graphs show the same results

@@ -634,6 +634,7 @@ def plot_relative_difference_single_sub_band(
     view: str = 'lateral',
     save_dir: str = None,
     symmetric_cmap: bool = True,
+    difference: str = "relative",   # "relative": (c2-c1)/c1 ; "absolute": c2-c1 (use for aperiodic parameters)
 ):
     """
     Plot (condition2 - condition1) / condition1 relative power difference
@@ -669,8 +670,14 @@ def plot_relative_difference_single_sub_band(
     values2 = values2.ravel()
 
     # Safe relative difference: avoid divide-by-zero blowups
-    with np.errstate(divide='ignore', invalid='ignore'):
-        rel_diff = np.where(values1 != 0, (values2 - values1) / values1, np.nan)
+    # with np.errstate(divide='ignore', invalid='ignore'):
+    #     rel_diff = np.where(values1 != 0, (values2 - values1) / values1, np.nan)
+
+    if difference == "absolute":
+        rel_diff = values2 - values1
+    else:
+        with np.errstate(divide='ignore', invalid='ignore'):
+            rel_diff = np.where(values1 != 0, (values2 - values1) / values1, np.nan)
 
     # ── Build brain volume ────────────────────────────────────────────────
     aal_data   = np.squeeze(np.asanyarray(aal_img.dataobj)).astype(int)
@@ -716,8 +723,8 @@ def plot_relative_difference_single_sub_band(
     # three ticks only: lower / middle / upper (middle is exactly 0 when symmetric)
     ticks = [vmin, 0.0, vmax] if symmetric_cmap else list(np.linspace(vmin, vmax, 3))
     cbar.set_ticks(ticks)
-    cbar.set_ticklabels([f"{t:.2f}" for t in ticks])
-    cbar.ax.tick_params(labelsize=22)
+    cbar.set_ticklabels([f"{t:.2f}" for t in ticks], fontsize=26)
+    cbar.ax.tick_params(labelsize=30)
 
     if save_dir:
         os.makedirs(save_dir, exist_ok=True)
@@ -728,3 +735,91 @@ def plot_relative_difference_single_sub_band(
 
     plt.show()
     plt.close()
+
+
+
+
+
+
+
+
+def split_half_latex_table(results, level, band_keys, n_total, label, pat_state, mark_robust=True,
+                           ap_keys=("Offset", "Exponent")):
+    """
+    Build a LaTeX (xltabular) table of significant counts for the split-half control.
+
+    results   : dict with keys "rest vs music (full N)", "music half1 vs half2",
+                "rest vs music (N = rest half)", "rest half1 vs half2";
+                values are (periodic, aperiodic) p-value dicts.
+                channel/region: p[sub][band] -> array over channels/regions
+                network:        p[sub][band] -> {network: p}
+    level     : "channel", "region" or "network"
+    band_keys : must be ["delta", "theta", "alpha", "beta", "gamma low"] (header order)
+    n_total   : number of channels, regions or networks (128, 90 or 3), used in the caption
+    label     : LaTeX label for the table
+    pat_state : {sub: diagnosis}, e.g. pat_state_dict
+    """
+    expected = ["delta", "theta", "alpha", "beta", "gamma low"]
+    if list(band_keys) != expected:
+        raise ValueError(f"band_keys must be {expected} (the column headers assume this order)")
+    if level not in ("channel", "region", "network"):
+        raise ValueError("level must be 'channel', 'region' or 'network'")
+
+    order = [("rest vs music (full N)",        "Initial rest vs music"),
+             ("music half1 vs half2",          "Music H1 vs H2"),
+             ("rest vs music (N = rest half)", "Rest vs music (N = rest half)"),
+             ("rest half1 vs half2",           "Rest H1 vs H2")]
+    cols = list(band_keys) + list(ap_keys)
+    unit = {"channel": "channels", "region": "regions", "network": "networks"}[level]
+
+    def count(p_dict, sub, key):
+        if sub not in p_dict or key not in p_dict[sub]:
+            return None
+        v = p_dict[sub][key]
+        if level == "network":                            # {network: p}
+            return int(sum(p < 0.05 for p in v.values()))
+        return int((np.asarray(v, float) < 0.05).sum())   # array over channels/regions
+
+    subs = sorted(results["rest vs music (full N)"][0])
+    sub_lab = {s: f"SUB{i+1}" for i, s in enumerate(sorted(pat_state))}
+
+    counts = {}
+    for key, _ in order:
+        p_per, p_ap = results[key]
+        counts[key] = {s: [count(p_per if c in band_keys else p_ap, s, c) for c in cols] for s in subs}
+
+    def cell(v, bold=False):
+        if v is None:
+            return "--"
+        return f"\\textbf{{{v}}}" if bold else str(v)
+
+    head = " & ".join(["\\textbf{Subject}", "\\textbf{Comparison}"] +
+                      ["$\\delta$", "$\\theta$", "$\\alpha$", "$\\beta$", "$\\gamma$", "Offset", "Exp."])
+    caption = (r"Split-half control at the " + level + r" level. Number of significant "
+               + f"{unit} (of {n_total})"
+               + r" per subject, frequency band, and aperiodic parameter, for the initial rest versus continuous music "
+                 r"comparison and for the within-recording split-half comparisons (H1, H2: first and second half of the "
+                 r"recording). The rest versus music comparison is shown with all epochs and with its epoch count reduced "
+                 r"to that of the rest halves."
+               + (r" Bold: rest-versus-music count exceeds the corresponding split-half count in both pairings."
+                  if mark_robust else ""))
+    lines = [r"\begingroup", r"\small", r"\setlength{\tabcolsep}{4pt}",
+             r"\begin{xltabular}{\textwidth}{@{}l X r r r r r r r@{}}",
+             r"\caption{" + caption + r"}",
+             r"\label{" + label + r"}\\",
+             r"\toprule", head + r" \\", r"\midrule", r"\endhead"]
+
+    for s in subs:
+        full, mus = counts["rest vs music (full N)"][s], counts["music half1 vs half2"][s]
+        nm, rst = counts["rest vs music (N = rest half)"][s], counts["rest half1 vs half2"][s]
+        robust = [bool(mark_robust) and None not in (a, b, c, d) and a > b and c > d and a > 0
+                  for a, b, c, d in zip(full, mus, nm, rst)]
+        for k, (key, name) in enumerate(order):
+            vals = counts[key][s]
+            bold = robust if key == "rest vs music (full N)" else [False] * len(vals)
+            first = f"\\multirow{{4}}{{*}}{{{sub_lab[s]} ({pat_state[s]})}}" if k == 0 else ""
+            lines.append(" & ".join([first, name] + [cell(v, b) for v, b in zip(vals, bold)]) + r" \\")
+        lines.append(r"\midrule" if s != subs[-1] else r"\bottomrule")
+
+    lines += [r"\end{xltabular}", r"\endgroup"]
+    return "\n".join(lines)

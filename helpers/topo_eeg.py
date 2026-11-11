@@ -430,7 +430,8 @@ def plot_band_power_difference_all_subjects(band_powers_all, raw_info, pat_state
         for band in bands:
             passive_psd = np.array(band_powers_all[subject][paradigm_names[1]][band])
             rest_psd = np.array(band_powers_all[subject][paradigm_names[0]][band])
-            band_power_difference[band] = (passive_psd - rest_psd) / rest_psd
+            # band_power_difference[band] = (passive_psd - rest_psd) / rest_psd
+            band_power_difference[band] = passive_psd - rest_psd
             t_stat, p_value = ttest_rel(passive_psd, rest_psd)
             p_values_band[band] = p_value
 
@@ -661,7 +662,8 @@ def plot_aperiodic_difference_all_subjects(fooof_aperiodic, raw_info, pat_state,
 
             passive_vals = np.nanmean(fooof_aperiodic[subject][paradigm_names[1]][param], axis=1)
             rest_vals    = np.nanmean(fooof_aperiodic[subject][paradigm_names[0]][param], axis=1)
-            diff = (passive_vals - rest_vals) / rest_vals
+            # diff = (passive_vals - rest_vals) / rest_vals
+            diff = passive_vals - rest_vals
             all_diffs_param.append(diff)
 
         all_diffs_param = np.concatenate(all_diffs_param)
@@ -696,7 +698,8 @@ def plot_aperiodic_difference_all_subjects(fooof_aperiodic, raw_info, pat_state,
 
             passive_vals = np.nanmean(fooof_aperiodic[subject][paradigm_names[1]][param], axis=1)
             rest_vals    = np.nanmean(fooof_aperiodic[subject][paradigm_names[0]][param], axis=1)
-            diff = (passive_vals - rest_vals) / rest_vals
+            # diff = (passive_vals - rest_vals) / rest_vals
+            diff = passive_vals - rest_vals
 
             ax = axes[param_idx, subj_idx]
             im, _ = mne.viz.plot_topomap(
@@ -883,15 +886,4 @@ def get_band_power_difference_all_subjects_significance_aperiodic_fdr(data_dict,
     fdr_corrected_p_vals = get_fdr_p_values(p_vals_all_subs, p_vals_per_band=n_channels)
 
     return fdr_corrected_p_vals
-
-
-
-
-
-
-
-
-
-
-
 
