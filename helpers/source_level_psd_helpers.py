@@ -463,9 +463,12 @@ def plot_band_power_comparisons(
 
     # Network display abbreviations (spell out in the figure caption:
     # SMN = Sensorimotor Network, DMN = Default Mode Network, LN = Limbic Network)
+    # Network display abbreviations (spell out in the figure caption:
+    # SMN = Sensorimotor Network, DMN = Default Mode Network, FPN = Frontoparietal Network)
     net_abbrev = {
         'Sensorimotor Network': 'SMN',
         'Default Mode Network': 'DMN',
+        'Frontoparietal Network': 'FPN',
         'Limbic Network': 'LN',
     }
 
